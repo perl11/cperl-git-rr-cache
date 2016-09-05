@@ -111,8 +111,8 @@ union _xhvnameu {
 struct xpvhv_aux {
     union _xhvnameu xhv_name_u;	/* name, if a symbol table */
     AV		*xhv_backreferences; /* back references for weak references */
-    HE		*xhv_eiter;	/* current entry of iterator */
-    SSize_t	xhv_riter;	/* current root of iterator */
+    HE		*xhv_eiter;	/* current entry of iterator: todo: move to loop context */
+    U32		xhv_riter;	/* current root of iterator: todo: move to loop context */
 
 /* Concerning xhv_name_count: When non-zero, xhv_name_u contains a pointer 
  * to an array of HEK pointers, this being the length. The first element is
@@ -120,7 +120,7 @@ struct xpvhv_aux {
  * then *xhv_name is one of the effective names. If xhv_name_count is nega-
  * tive, then xhv_name_u.xhvnameu_names[1] is the first effective name.
  */
-    I32		xhv_name_count; /* stash names and aliases */
+    I32		xhv_name_count;
     struct mro_meta *xhv_mro_meta;
 #ifdef PERL_HASH_RANDOMIZE_KEYS
     U32         xhv_rand;       /* random value for hash traversal */
@@ -129,28 +129,30 @@ struct xpvhv_aux {
 #endif
 <<<<<<<
     SSize_t     xhv_fill_lazy;
-    U32         xhv_aux_flags;      /* assorted extra flags */
+    U32         xhv_timestamp;  /* inc on every hv change: store, delete */
+    U32         xhv_savedstamp; /* timestamp state at hv_iterinit */
+    U32         xhv_aux_flags;  /* assorted extra flags */
 =======
     U32 	xhv_fill_lazy;
-    U32         xhv_aux_flags;  /* assorted extra flags */
+    U32         xhv_aux_flags;      /* assorted extra flags */
 >>>>>>>
 };
 
 #define HvAUXf_SCAN_STASH   0x1   /* stash is being scanned by gv_check */
 #define HvAUXf_NO_DEREF     0x2   /* @{}, %{} etc (and nomethod) not present */
 #define HvAUXf_STATIC       0x8   /* HvARRAY and xpvhv_aux is statically allocated (embedders) */
-#define HvAUXf_SMALL       0x10  /* Small hash, linear scan */
+#define HvAUXf_SMALL       0x10   /* Small hash, linear scan */
 
 /* hash structure: */
 /* This structure must match the beginning of struct xpvmg in sv.h. */
 struct xpvhv {
     HV*		xmg_stash;	/* class package */
     union _xmgu	xmg_u;
-    SSize_t     xhv_keys;       /* total keys, including placeholders */
-    SSize_t     xhv_max;        /* subscript of last element of xhv_array */
+    U32     	xhv_keys;       /* total keys, including placeholders */
+    U32     	xhv_max;        /* subscript of last element of xhv_array */
 };
 
-#define HV_NO_RITER -1
+#define HV_NO_RITER (U32)U32_MAX
 
 /*
 =head1 Hash Manipulation Functions
@@ -310,6 +312,8 @@ C<SV*>.
 /* HvSTATIC must be combined with SvREADONLY! */
 #define HvSTATIC_get(hv) (SvOOK(hv) ? HvAUX(hv)->xhv_aux_flags & HvAUXf_STATIC : 0)
 #define HvSTATIC(hv)     HvSTATIC_get(hv)
+/* Only valid with SvOOK */
+#define HvTIMESTAMP(hv)  (HvAUX(hv)->xhv_timestamp)
 
 #define HvNAME(hv)	HvNAME_get(hv)
 #define HvNAMELEN(hv)   HvNAMELEN_get(hv)
