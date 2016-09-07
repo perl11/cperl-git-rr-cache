@@ -1,0 +1,227 @@
+=encoding utf8
+
+=head1 NAME
+
+perlcdelta - what is new for cperl v5.22.5
+
+=head1 DESCRIPTION
+
+This document describes perl-only differences between the cperl 5.22.4
+release and the cperl 5.22.5 release.
+
+For B<cperl> also see F<Changes> and L<perlcperl>
+
+=head1 Security
+
+=head2 C<@{ \327 \n }> buffer overflows
+
+Fixed C<@{ \327 \n }> tokenizer failures and heap buffer overflows in
+C<sv_vcatpvfn_flags()> with wrong tracking of C<PL_linestr>, the
+currently parsed line buffer. This can easily lead to security
+relevant exploits.
+
+L<[perl #128951]|https://rt.perl.org/Public/Bug/Display.html?id=128951>
+
+=head2 C<eval "q" . chr(overlarge)> stack overflow
+
+In C<eval "q" . chr(100000000064)> generating the error message
+C<Can't find string terminator "XXX"'> was overrunning a local buffer
+designed to hold a single utf8 char, since it wasn't allowing for
+the C<\0> at the end.
+
+L<[perl #128952]|https://rt.perl.org/Public/Bug/Display.html?id=128952>
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item Time::HiRes  1.9739
+
+More Darwin thread fixes for clock_gettime,
+Sierra support,
+test improvements.
+
+=item Socket  2.024_02
+
+Merge cpan 2.024 with our 2.021_02,
+plus fix some problems in their new code.
+
+=item B  1.62_04
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item Devel::Peek  1.23_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item File::Glob  1.26_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item File::DosGlob  1.12_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item POSIX  1.65_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item PerlIO::encoding  0.24_01
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item XS::APItest  0.80_02
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item DynaLoader  2.05c
+
+no mathoms: call_sv instead of call_pv, get_cvs where available.
+
+use the new get_svs, get_avs, get_hvs macros.
+
+=item B-C  1.54_12
+
+Better CopFILE_set,
+Fixup arenasize refcnt.
+Delay cvref to init2, properly set a SvRV to a XS sub.
+Optimize constpv for CvFILE (less constants to merge for gcc).
+Improve NV precision by one digit.
+Fix to compile in utf8_heavy.pl, abstract and set %INC.
+Fix generation of @B::C::Config::deps on Windows.
+Fix !C99 precedence bug (e.g. MSVC).
+Minor refactor to simplify save_hek.
+Use the new get_svs, get_avs, get_hvs macros.
+
+=back
+
+=head1 Utility Changes
+
+=head2 F<installperl>
+
+=over 4
+
+=item *
+
+Fixed cperl.exe and cperl*.lib installation on windows.
+
+=back
+
+=head1 Internal Changes
+
+Changes which affect the interface available to C<XS> code go here.  Other
+significant internal changes for future core maintainers should be noted as
+well.
+
+=over 4
+
+=item *
+
+SvREADONLY_off(sv) is only usable as statement, not as expression anymore.
+It broke Sun C 5.12, in ByteLoader.
+See L<[cperl #183]|https://github.com/perl11/cperl/issues/183>.
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item aelem_u: fix loop oob for padav
+
+Out-of-bounds check elimination in loops has been fixed for lexical
+counters.  E.g. with C<my @a=(0..4); for my $i (0..$#a) { $a[$i] }> each
+access to C<$a[$i]> in the loop is now really converted to the
+unchecked faster B<aelem_u> op.
+
+Note that multideref ops are not yet converted to omit out-of-bounds
+checks. This is only implemented since cperl-5.25, since it needs to
+widen the internal mderef structure.
+
+=item fixed -DH crash on clear
+
+When clearing a hv (with refcnt 0), HvKEYS crashed with an
+invalid mg on a placeholder. Just use HvTOTALKEYS instead.
+
+=item Check for null in pp_ghostent et al.
+
+Specifically in the C<S_space_join_names_mortal> static function that
+several pp functions call.  On some platforms (such as Gentoo Linux
+with torsocks), C<< hent->h_aliases >> (where C<hent> is a C<struct hostent *>) may
+be null after a C<gethostent> call.
+
+L<[perl #128740]|https://rt.perl.org/Public/Bug/Display.html?id=128740>
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.22.5 represents approximately 2 months of development since cperl 5.22.4
+and contains approximately 900,000 lines of changes across 570 files from 13
+authors.
+
+Excluding auto-generated files, documentation and release tools, there were
+approximately 7,900 lines of changes to 120 .pm, .t, .c and .h files.
+
+The following people are known to have contributed the improvements
+that became cperl 5.22.5:
+
+Reini Urban, Father Chrysostomos, Karl Williamson, David Mitchell, Daniel
+Dragan, Tony Cook, Lukas Mai, Niko Tyni, H.Merijn Brand, Hugo van der Sanden,
+Dagfinn Ilmari Mannsåker, Aaron Crane, Dan Collins.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+https://rt.perl.org/ .  There may also be information at
+http://www.perl.org/ , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the F<perlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications, which make it
+inappropriate to send to a publicly archived mailing list, then please send it
+to perl5-security-report@perl.org.  This points to a closed subscription
+unarchived mailing list, which includes all the core committers, who will be
+able to help assess the impact of issues, figure out a resolution, and help
+co-ordinate the release of patches to mitigate or fix the problem across all
+platforms on which Perl is supported.  Please only use this address for
+security issues in the Perl core, not for modules independently distributed on
+CPAN.
+
+If you trust the cperl developers more, please send an email to
+them. The p5p security teams skips many security issues, or are
+unwilling to fix them.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
