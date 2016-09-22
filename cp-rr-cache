@@ -1,0 +1,12 @@
+#!/bin/sh
+# update .git-rr-cache
+# both branches, git-rr-cache and at branch point get changed destructively
+# at least at branch-point it should be a temp. ".git-rr-cache ..." commit
+
+br=`git branch --no-color --list|grep ^*|cut -c3-`
+
+git co branch-point && \
+    cd .git-rr-cache && \
+    git add . && git ciae && \
+    cd .. && git add .git-rr-cache && git ciae && \
+    git co $br && git rb branch-point
