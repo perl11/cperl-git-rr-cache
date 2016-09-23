@@ -77,17 +77,24 @@ rb featurex/CM-367-cperl-warnings-xs-carp feature/CM-367-cperl-carp-builtin
 #rb smoke/gh121-storable-u64 branch-point
 #rb smoke/gh121+gh123-sizes  smoke/gh121-storable-u64
 
-# based on gh24-base-hash
+# based on feature/gh24-base-hash
 for b in `git branch --list --no-color | cut -c3- | grep '^featurex/gh24-'`
 do
     rb $b feature/gh24-base-hash
 done
+rb featurex/gh24-array_he       featurex/gh24-hash-loop
+rb featurex/gh24-hash-loop+utf8 featurex/gh24-hash-loop
+rb featurex/gh24-one-word-ahe   featurex/gh24-array_he
 
 for b in `git branch --list --no-color | cut -c3- \
           | grep '^smoke/' | grep -v 'smoke/maint-5'`
 do
     if [ -n $hard ]; then git reset --hard; fi
-    rb $b master
+    if [ $b = smoke/gh24-base-hash ]; then
+        git reset --hard feature/gh24-base-hash
+    else
+        rb $b master
+    fi
 done
 
 # (for later deeper subtrees)
