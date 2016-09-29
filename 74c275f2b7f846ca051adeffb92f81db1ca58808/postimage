@@ -4986,7 +4986,7 @@ Perl_sv_sethek(pTHX_ SV *const sv, const HEK *const hek)
 	return;
     }
 
-    if (HEK_IS_SVKEY(hek)) {
+    if (HEK_LEN(hek) == HEf_SVKEY) {
 	sv_setsv(sv, *(SV**)HEK_KEY(hek));
         return;
     } else {
@@ -9342,7 +9342,7 @@ Perl_newSVhek(pTHX_ const HEK *const hek)
 	return sv;
     }
 
-    if (HEK_IS_SVKEY(hek)) {
+    if (HEK_LEN(hek) == HEf_SVKEY) {
 	return newSVsv(*(SV**)HEK_KEY(hek));
     } else {
 	if (HEK_WASUTF8(hek)) {
@@ -9773,8 +9773,11 @@ Perl_sv_resetpvn(pTHX_ const char *s, STRLEN len, HV * const stash)
 	    todo[i] = 1;
 	}
 	for (i = 0; i <= (I32) HvMAX(stash); i++) {
-	    HE *entry = HvARRAY(stash)[i];
-            HE_EACH(hv, entry, {
+	    HE *entry;
+	    for (entry = HvARRAY(stash)[i];
+		 entry;
+		 entry = HeNEXT(entry))
+	    {
 		GV *gv;
 		SV *sv;
 
@@ -9788,11 +9791,13 @@ Perl_sv_resetpvn(pTHX_ const char *s, STRLEN len, HV * const stash)
 		    SV_CHECK_THINKFIRST_COW_DROP(sv);
 		    if (!isGV(sv)) SvOK_off(sv);
 		}
-		if (GvAV(gv))
+		if (GvAV(gv)) {
 		    av_clear(GvAV(gv));
-		if (GvHV(gv) && !HvNAME_get(GvHV(gv)))
+		}
+		if (GvHV(gv) && !HvNAME_get(GvHV(gv))) {
 		    hv_clear(GvHV(gv));
-            })
+		}
+	    }
 	}
     }
 }
@@ -15687,25 +15692,20 @@ S_find_hash_subscript(pTHX_ const HV *const hv, const SV *const val)
 
     array = HvARRAY(hv);
 
-    for (i = HvMAX(hv); i>=0; i--) {
-	HE *entry = array[i];
-        HE_EACH(hv, entry, {
+    for (i=HvMAX(hv); i>=0; i--) {
+	HE *entry;
+	for (entry = array[i]; entry; entry = HeNEXT(entry)) {
 	    if (HeVAL(entry) != val)
 		continue;
-<<<<<<<
-	    if ( HeVAL(entry) == &PL_sv_undef ||
-		 He_IS_PLACEHOLDER(entry) )
-=======
-	    if (HeVAL(entry) == &PL_sv_undef ||
-		HeVAL(entry) == &PL_sv_placeholder)
->>>>>>>
+	    if (    HeVAL(entry) == &PL_sv_undef ||
+		    HeVAL(entry) == &PL_sv_placeholder)
 		continue;
 	    /*if (!HeKEY(entry))
               return NULL;*/
-	    if (He_IS_SVKEY(entry))
+	    if (HeKLEN(entry) == HEf_SVKEY)
 		return sv_mortalcopy(HeKEY_sv(entry));
 	    return sv_2mortal(newSVhek(HeKEY_hek(entry)));
-        })
+	}
     }
     return NULL;
 }
@@ -15839,7 +15839,7 @@ S_find_uninit_var(pTHX_ const OP *const obase, const SV *const uninit_sv,
     PERL_ARGS_ASSERT_FIND_UNINIT_VAR;
 
     if (!obase || (match && (!uninit_sv || uninit_sv == &PL_sv_undef ||
-                             SV_IS_PLACEHOLDER(uninit_sv) )))
+			    uninit_sv == &PL_sv_placeholder)))
 	return NULL;
 
     switch (obase->op_type) {
