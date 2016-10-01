@@ -78,13 +78,24 @@ rb featurex/CM-367-cperl-warnings-xs-carp feature/CM-367-cperl-carp-builtin
 #rb smoke/gh121+gh123-sizes  smoke/gh121-storable-u64
 
 # based on feature/gh24-base-hash
+rb featurex/gh24-hash-loop feature/gh24-base-hash
 for b in `git branch --list --no-color | cut -c3- | grep '^featurex/gh24-'`
 do
-    rb $b feature/gh24-base-hash
+    if [ $b == featurex/gh24-array_he ]; then
+        rb $b featurex/gh24-hash-loop
+    elif [ $b == featurex/gh24-hash-loop+utf8 ]; then
+        rb $b featurex/gh24-hash-loop
+    elif [ $b == featurex/gh24-one-word-ahe ]; then
+        rb $b featurex/gh24-array_he
+    elif [ $b == featurex/gh24-open-hash ]; then
+        rb $b featurex/gh24-array_he
+    else
+        rb $b feature/gh24-base-hash
+    fi
 done
-rb featurex/gh24-array_he       featurex/gh24-hash-loop
-rb featurex/gh24-hash-loop+utf8 featurex/gh24-hash-loop
-rb featurex/gh24-one-word-ahe   featurex/gh24-array_he
+#rb featurex/gh24-array_he       featurex/gh24-hash-loop
+#rb featurex/gh24-hash-loop+utf8 featurex/gh24-hash-loop
+#rb featurex/gh24-one-word-ahe   featurex/gh24-array_he
 
 for b in `git branch --list --no-color | cut -c3- \
           | grep '^smoke/' | grep -v 'smoke/maint-5'`
