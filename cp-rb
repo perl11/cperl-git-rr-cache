@@ -30,7 +30,7 @@ function rb {
         fi
         if [ -e .git/rebase-apply/patch ]; then
             if [ -n "`grep a/.git-rr-cache .git/rebase-apply/patch`" \
-                 -a `grep -c 'diff --git' .git/rebase-apply/patch` == 1 ]
+                 -a `git status | grep -c "both modified"` == 1 ]
             then
                 git reset .git-rr-cache
                 git submodule update --init
