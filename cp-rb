@@ -22,6 +22,11 @@ function rb {
         # if the rb exit happens in an old to be merged commit, do a --skip (g rbs),
         # optionally execute ARG1 skips ($rbs)
         # if it happens in the new branch, resolve it manually
+        # TODO:
+        # * check log (max 20, back to master) is the conflicting subject was
+        #   already applied before. skip if so.
+        # * check optional string arg for a matching CONFLICT filename.
+        #   'cp-rb 1 MANIFEST' will only skip if the CONFLICT is in this file.
         if [ x$rbs != x ]; then
             echo git rebase --skip $rbs x
             for i in `seq 1 $rbs`; do
