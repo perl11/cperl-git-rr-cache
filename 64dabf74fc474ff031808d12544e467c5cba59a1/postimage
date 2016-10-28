@@ -1,0 +1,446 @@
+=encoding utf8
+
+=head1 NAME
+
+perlcdelta - what is new for cperl v5.24.2
+
+=head1 DESCRIPTION
+
+This document describes the differences between the cperl 5.24.1
+and the cperl 5.24.2 releases.
+
+=head1 Notice
+
+XXX Any important notices here
+
+=head1 Security
+
+XXX Any security-related notices go here.  In particular, any security
+vulnerabilities closed should be noted here rather than in the
+L</Selected Bug Fixes> section.
+
+[ List each security issue as a =head2 entry ]
+
+=head1 Performance Enhancements
+
+XXX Changes which enhance performance without changing behaviour go here.
+There may well be none in a stable release.
+
+[ List each enhancement as a =item entry ]
+
+=over 4
+
+=item *
+
+C<-DPERL_FAKE_SIGNATURE> is now default, making most function calls 2x faster.
+See L</fake_signatures>
+
+=back
+
+=head1 Modules and Pragmata
+
+[ Within each section, list entries as a =item entry ]
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item Config::Perl::V  0.27_01
+
+=item CPAN::Meta  2.150010c
+
+And merge F<cpan/Parse-CPAN-Meta> into it. F<cpan/Parse-CPAN-Meta> is
+gone.
+
+=item CPAN  2.14c
+
+reapply most of our patches.
+skip cperl builtin prereqs.
+
+=item Archive-Tar  2.10
+
+=item YAML::XS 0.74
+
+fixed encoding issues: fixed wrong $YAML::XS::Encoding and
+$YAML::XS::LineBreak comparison logic.
+fixed utf8 input as handled as UTF8,
+non-utf8 honors $YAML::XS::Encoding.
+
+=item Cpanel-JSON-XS  3.0220
+
+modfl() mingw 4.0 runtime bug [perl #125924]
+
+Tested with the comprehensive JSON decode spectests from
+http://seriot.ch/parsing_json.html. Not added to core. #72
+
+decode with BOM (UTF-8, UTF-16, or UTF-32). For now only UTF-8,
+the others error.
+
+fixed detection of final \0 as illegal non-whitespace garbage. Fixes
+spectest 'n_number_then_00'. #72
+
+changed decode of unicode noncharacters between U+FFFD and U+10FFFF
+to the recommended U+FFFD REPLACEMENT CHARACTER, when not in the binary
+or relaxed mode.
+
+fail decode of non-unicode raw characters above U+10FFFF
+when not in relaxed mode.
+
+added F<t/gh70-asan.t>
+
+=item Time::HiRes  1.9740
+
+skip the t/utime.t on ext2/ext3
+
+=item Data::Dumper  1.162
+
+strEQc improvements
+
+fix correct indentation for utf-8 key hash elements, [perl #128524].
+
+=item Devel::PPPort  3.35_01
+
+no changes
+
+=item Digest::SHA  5.96
+
+prevented shasum from possibly running malicious code,
+remove '.' from @INC before module loading RT #116513,
+namespace cleanup (RT #105371 and #105372),
+minor code and documentation tweaks
+
+=item Encode  2.86
+
+=item File::Fetch  2.52
+
+* Set a cleaned env when running git clone
+* Changed git repository link in tests
+* Removed consistently failing httpbin.org tests
+* Require Module::Load::Conditional 0.66
+* Fix FTP tests for ipv6
+
+=item Getopt::Long 2.49.1
+
+* RT #114999 fix :number
+* RT #113748 fix VersionMessage ignores -output argument
+* RT #39052 sanify gnu_getopt
+
+=item HTTP::Tiny  0.070
+
+Many fixes und improvements
+
+=item IPC::Cmd  0.96
+
+set $Module::Load::Conditional::FORCE_SAFE_INC = 1
+
+=item Locale::Codes  3.40
+
+Lot of new codes.
+
+=item Locale::Maketext 1.28
+
+Fix optional runtime load for CVE-2016-1238
+
+Add blacklist and whitelist support, with 
+perl #127923 priority. See L<Locale::Maketext/"BRACKET NOTATION SECURITY">
+
+=item Math-BigInt  1.999726
+
+with our t/ skip count fixes.
+
+=item Module-Load-Conditional  0.68
+
+Fix unconditional @INC localisation,
+Add FORCE_SAFE_INC option to fix CVE-2016-1238.
+
+=item Module-Metadata  1.000033
+
+- Fix file operation in tests for VMS
+
+- use a more strict matching heuristic when attempting to infer the
+  "primary" module name in a parsed .pm file
+
+- only report "main" as the module name if code was seen outside another
+  namespace, fixing bad results for pod files (RT#107525)
+
+=item NEXT  0.67
+
+Doc and meta changes only.
+
+=item libnet  3.10
+
+- Remove . from @INC when loading optional modules.  [Tony Cook, Perl
+  RT#127834, CVE-2016-1238]
+
+- Increased minimum required version of IO::Socket::IP to 0.25 to hopefully
+  stop t/pop3_ipv6.t hanging.  [CPAN RT#104545]
+
+- Debug output now includes decoded (from base64) negotiation for SASL.
+  [Philip Prindeville, PR#27]
+
+- plus the suse utf8 fixes for Net::Cmd, see 5bd7010cb and
+  our darwin performance fix for hostname.
+
+=back
+
+=head1 Documentation
+
+XXX Changes to files in F<pod/> go here.  Consider grouping entries by
+file and be sure to link to the appropriate page, e.g. L<perlfunc>.
+
+=head2 New Documentation
+
+XXX Changes which create B<new> files in F<pod/> go here.
+
+=head3 L<XXX>
+
+XXX Description of the purpose of the new file here
+
+=head2 Changes to Existing Documentation
+
+XXX Changes which significantly change existing files in F<pod/> go here.
+However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
+section.
+
+=head3 L<XXX>
+
+=over 4
+
+=item *
+
+XXX Description of the change here
+
+=back
+
+=head1 Diagnostics
+
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
+
+XXX New or changed warnings emitted by the core's C<C> code go here.  Also
+include any changes in L<perldiag> that reconcile it to the C<C> code.
+
+=head2 Changes to Existing Diagnostics
+
+XXX Changes (i.e. rewording) of diagnostic messages go here
+
+=over 4
+
+=item *
+
+XXX Describe change here
+
+=back
+
+=head1 Utility Changes
+
+XXX Changes to installed programs such as F<perlbug> and F<xsubpp> go here.
+Most of these are built within the directory F<utils>.
+
+[ List utility changes as a =head2 entry for each utility and =item
+entries for each change
+Use L<XXX> with program names to get proper documentation linking. ]
+
+=head2 L<XXX>
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Configuration and Compilation
+
+XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
+go here.  Any other changes to the Perl build process should be listed here.
+However, any platform-specific changes should be listed in the
+L</Platform Support> section, instead.
+
+[ List changes as a =item entry ].
+
+=over 4
+
+=item XXX
+
+XXX
+
+=back
+
+=head1 Testing
+
+XXX Any significant changes to the testing of a freshly built perl should be
+listed here.  Changes which create B<new> files in F<t/> go here as do any
+large changes to the testing harness (e.g. when parallel testing was added).
+Changes to existing files in F<t/> aren't worth summarizing, although the bugs
+that they represent may be covered elsewhere.
+
+[ List each test improvement as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Platform Support
+
+XXX Any changes to platform support should be listed in the sections below.
+
+[ Within the sections, list each platform as a =item entry with specific
+changes as paragraphs below it. ]
+
+=head2 New Platforms
+
+XXX List any platforms that this version of perl compiles on, that previous
+versions did not.  These will either be enabled by new files in the F<hints/>
+directories, or new subdirectories and F<README> files at the top level of the
+source tree.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head2 Platform-Specific Notes
+
+XXX List any changes for specific platforms.  This could include configuration
+and compilation changes or changes in portability/compatibility.  However,
+changes within modules for platforms should generally be listed in the
+L</Modules and Pragmata> section.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head1 Selected Bug Fixes
+
+XXX Important bug fixes in the core language are summarized here.  Bug fixes in
+files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
+
+=over 4
+
+=item *
+
+Fixed a cperl-only failure in signatures with default blocks introducing
+a new lexical variable. As in C<sub t151($a,$b=do{my $f},$c=1){} t151($x,$x,$x)>.
+This failure was only fatal on 32bit + -Duse64bitint systems.
+
+C<SIGNATURE_arg_default_op> does not have a items arg.
+See L<[cperl #164]|https://github.com/perl11/cperl/issues/164>.
+and L<[cperl #213]|https://github.com/perl11/cperl/issues/213>.
+
+=back
+
+=head1 Known Problems
+
+For open cperl problems see L<[issues]|https://github.com/perl11/cperl/issues/>.
+
+Some of these fixes also can to be backported from perl5.25.x upstream.
+
+=over 4
+
+=item *
+
+The perl debugger doesn't yet work with signatures. It doesn't step into
+such functions and it may fail.
+See e.g. L<[cperl #167]|https://github.com/perl11/cperl/issues/167>
+
+=item *
+
+F<t/op/taint.t> contained a test with signatures and 6 default
+arguments, which on some 32 bit systems led to random "Reference
+parameter cannot take default value at op/taint.t line 2461"
+compile-time failures. This test has been rewritten to ony use 4 arguments.
+
+See L<[cperl #164]|https://github.com/perl11/cperl/issues/164>
+
+=item *
+
+C<clang -flto=thin> and on some systems even C<gcc -flto> with C<-O3>
+or C<-finline> leads to invisible symbols which were inlined and not
+exported, even if they should be declared as public API. Work is
+ongoing in the F<feature/gh186-lto-thin> branch, but there the
+inlining is disabled by the C<used> attribute, leading to a
+10% performance regression.  On the other hand a working
+C<clang-3.9 -flto> leads to 20% performance improvements.
+
+=item *
+
+C< until ($x = 1) { ... } > and C< ... until $x = 1 > should
+warn when syntax warnings are enabled.
+L<[perl #127333]|https://rt.perl.org/Public/Bug/Display.html?id=127333>
+
+=item *
+
+C< ${\vec %h, 0, 1} > and C< ${\substr %h, 0} > should not segfault, rather
+the lvalue context should be propagated, and list context properly handled.
+L<[perl #128260]|https://rt.perl.org/Public/Bug/Display.html?id=128260>
+
+=back
+
+=head1 Errata From Previous Releases
+
+=over 4
+
+=item *
+
+XXX Add anything here that we forgot to add, or were mistaken about, in
+the perlcdelta of a previous release.
+
+=back
+
+=head1 Obituary
+
+XXX If any significant core contributor has died, we've added a short obituary
+here.
+
+=head1 Acknowledgements
+
+XXX To be generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.24.1..HEAD
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
