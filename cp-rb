@@ -3,11 +3,20 @@
 # before git push cp -f (update all dependent branches)
 # now also with cp-rbi functionality with -i
 # ./cp-rb 1 (does 1 skip)
+# ./cp-rb 1 "op: add OpFIRST,LAST,OTHER macros"
+#         does skip one commit if it matches the substring $2
 if [ x$1 = x-f ]; then force=1; shift; fi
 if [ x$1 = x--hard ]; then hard=1; shift; fi
 if [ x$1 = x-i ]; then interactive=--interactive; shift; fi
 case $1 in
-    [0-9]*) rbs=$1; shift;;
+    [0-9]*)
+        rbs=$1
+        if [ x$1 == x1 -a -n "$2" ]; then
+            match="$2"
+            shift
+            shift
+        fi
+        ;;
 esac
 
 #set -e
@@ -27,11 +36,18 @@ function rb {
         #   already applied before. skip if so.
         # * check optional string arg for a matching CONFLICT filename.
         #   'cp-rb 1 MANIFEST' will only skip if the CONFLICT is in this file.
-        if [ x$rbs != x ]; then
-            echo git rebase --skip $rbs x
-            for i in `seq 1 $rbs`; do
+        if [ -n "$match" -a x$rbs == x1 ]; then
+            if [[ "`git log -n1 --pretty=format:%s`" == *"$match"* ]]; then
+                echo git rebase --skip $match
                 git rebase --skip
-            done
+            fi
+        else
+            if [ x$rbs != x ]; then
+                echo git rebase --skip $rbs x
+                for i in `seq 1 $rbs`; do
+                    git rebase --skip
+                done
+            fi
         fi
         if [ -e .git/rebase-apply/patch ]; then
             if [ -n "`grep a/.git-rr-cache .git/rebase-apply/patch`" \
@@ -112,9 +128,9 @@ do
     elif [ $b == smoke/gh24-hash-loop ]; then
         git checkout $b
         git reset --hard featurex/gh24-hash-loop
-    #elif [ $b == smoke/gh24-array_he ]; then
-    #    git checkout $b
-    #    git reset --hard featurex/gh24-array_he
+    elif [ $b == smoke/gh24-array_he ]; then
+        git checkout $b
+        git reset --hard featurex/gh24-array_he
     else
         rb $b master
     fi
