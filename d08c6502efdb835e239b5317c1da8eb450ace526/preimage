@@ -16,8 +16,6 @@
 /* Performance. We have good enough security measures to fight DoS hash floods. */
 /*# define PERL_PERTURB_KEYS_DISABLED*/
 # define PERL_PERTURB_KEYS_TOP
-/* array_he branch: inline hent_hash into AHE* */
-# define PERL_INLINE_HASH
 #endif
 
 #if defined(PERL_PERTURB_KEYS_DISABLED) || defined(PERL_PERTURB_KEYS_TOP)
@@ -374,16 +372,12 @@ C<SV*>.
 #ifndef PERL_CORE
 #  define Nullhe Null(HE*)
 #endif
-<<<<<<<
-#define AHe(ahe)		(ahe).hent_he
-=======
 #define AHe(ahe)		(ahe).hent_he
 #ifdef PERL_INLINE_HASH
 #  define AHeHASH_set(ahep, hash) (ahep)->hent_hash = hash
 #else
 #  define AHeHASH_set(ahep, hash)
 #endif
->>>>>>>
 #define HeNEXT(he)		(he)->hent_next
 #define HeKEY_hek(he)		(he)->hent_hek
 #define HeKEY(he)		HEK_KEY(HeKEY_hek(he))
@@ -682,6 +676,7 @@ Creates a new HV.  The reference count is set to 1.
 
 #define newHV()	MUTABLE_HV(newSV_type(SVt_PVHV))
 
+<<<<<<<
 /* entry is the initial hash hit, check all collisions.
    an empty hash slot has entry==NULL. */
 #define HE_EACH(hv,_entry,block) \
@@ -698,10 +693,6 @@ Creates a new HV.  The reference count is set to 1.
       block; \
     }
 #ifdef PERL_CORE
-#define HE_EACH_POST(hv,entry,post,block)  \
-    for (; entry; entry = HeNEXT(entry), post) { \
-      block; \
-    }
 /* oentry is the changable entry ptr, entry the initial hash hit.
    check all collisions */
 #define HE_OEACH(hv,oentry,_entry,block) \
@@ -710,6 +701,24 @@ Creates a new HV.  The reference count is set to 1.
     }
 #endif
 
+=======
+/* entry is the initial hash hit, check all collisions.
+   an empty hash slot has entry==NULL. */
+#define HE_EACH(hv,entry,block) \
+    for (; entry; entry = HeNEXT(entry)) { \
+      block; \
+    }
+
+#ifdef PERL_CORE
+/* oentry is the changable entry ptr, entry the initial hash hit.
+   check all collisions */
+#define HE_OEACH(hv,oentry,entry,block) \
+    for (; entry; oentry = &HeNEXT(entry), entry = *oentry) { \
+      block; \
+    }
+#endif
+
+>>>>>>>
 #include "hv_func.h"
 
 /*

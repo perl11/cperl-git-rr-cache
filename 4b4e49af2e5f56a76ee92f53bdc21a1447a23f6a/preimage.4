@@ -374,16 +374,12 @@ C<SV*>.
 #ifndef PERL_CORE
 #  define Nullhe Null(HE*)
 #endif
-<<<<<<<
-#define AHe(ahe)		(ahe).hent_he
-=======
 #define AHe(ahe)		(ahe).hent_he
 #ifdef PERL_INLINE_HASH
 #  define AHeHASH_set(ahep, hash) (ahep)->hent_hash = hash
 #else
 #  define AHeHASH_set(ahep, hash)
 #endif
->>>>>>>
 #define HeNEXT(he)		(he)->hent_next
 #define HeKEY_hek(he)		(he)->hent_hek
 #define HeKEY(he)		HEK_KEY(HeKEY_hek(he))
@@ -402,15 +398,25 @@ C<SV*>.
 #define HeUTF8(he)		((He_IS_SVKEY(he)) ? SvUTF8(HeKEY_sv(he)) : (U32)HeKUTF8(he))
 #define HeSTATIC(he)		(HEK_FLAGS(HeKEY_hek(he)) & HVhek_STATIC)
 
+<<<<<<<
+#define HeSVKEY(he)		((He_IS_SVKEY(he)) ? HeKEY_sv(he) : NULL)
+
+#define HeSVKEY_force(he)	((He_IS_SVKEY(he)) ?		\
+=======
 #define HeSVKEY(he)		((He_IS_SVKEY(he)) ? HeKEY_sv(he) : NULL)
 #define HeSVKEY_force(he)	((He_IS_SVKEY(he)) ?		        \
+>>>>>>>
 				  HeKEY_sv(he) :			\
 				  newSVpvn_flags(HeKEY(he), HeKLEN(he), SVs_TEMP | \
                                       ( HeKUTF8(he) ? SVf_UTF8 : 0 )))
 #define HeSVKEY_set(he,sv)	((HeKLEN(he) = HEf_SVKEY), (HeKEY_sv(he) = sv))
+<<<<<<<
+#define He_IS_SVKEY(he) 	HeKLEN(he) == HEf_SVKEY
+=======
 #define He_IS_SVKEY(he) 	HeKLEN(he) == HEf_SVKEY
 #define He_IS_PLACEHOLDER(he) 	HeVAL(he) == &PL_sv_placeholder
 #define SV_IS_PLACEHOLDER(sv) 	sv == &PL_sv_placeholder
+>>>>>>>
 
 #ifndef PERL_CORE
 #  define Nullhek Null(HEK*)
@@ -698,10 +704,6 @@ Creates a new HV.  The reference count is set to 1.
       block; \
     }
 #ifdef PERL_CORE
-#define HE_EACH_POST(hv,entry,post,block)  \
-    for (; entry; entry = HeNEXT(entry), post) { \
-      block; \
-    }
 /* oentry is the changable entry ptr, entry the initial hash hit.
    check all collisions */
 #define HE_OEACH(hv,oentry,_entry,block) \
