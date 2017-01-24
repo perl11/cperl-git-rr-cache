@@ -131,6 +131,8 @@ do
     elif [ $b == smoke/gh24-array_he ]; then
         git checkout $b
         git reset --hard featurex/gh24-array_he
+    elif [ $b == smoke/master ]; then
+        rb $b branch-point
     else
         rb $b master
     fi
