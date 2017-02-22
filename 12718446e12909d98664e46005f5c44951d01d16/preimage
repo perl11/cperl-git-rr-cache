@@ -1,0 +1,667 @@
+=encoding utf8
+
+=head1 NAME
+
+perlcdelta - what is new for cperl v5.26.0
+
+=head1 DESCRIPTION
+
+This document describes the differences between the cperl 5.25.3
+and the cperl 5.26.0 releases.
+
+If you are upgrading from an earlier release such as v5.24.2c, first
+read the L<perl525*cdelta> documentation, which describes differences
+between v5.25.1c and v5.26.0c
+
+=head1 Notice
+
+<<<<<<<
+This cperl version is merged with the perl versions 5.25.3 - 5.25.9.
+
+C<${^ENCODING}> and the encoding pragma was not removed, rather fixed
+instead.
+
+User-type support is greatly enhanced. See L</Type-check assignments>,
+L</HvCLASS>, L<Type-infer bless>, and L</Type-infer subroutine return
+types>.  Before just coretypes were properly checked, now C<use types>
+adds warnings for all other types.
+
+Switch from DFS to C3 as new MRO default.
+
+The still incomplete and slow implementation for the experimental
+subroutine signatures feature from 5.25.4 was not added, as cperl's
+signatures are over 50% faster for over a year and have many more
+features. In detail the new C<OP_ARGELEM>, C<OP_ARGDEFELEM> and
+C<OP_ARGCHECK> are not used, cperl still uses C<OP_SIGNATURE> only.
+
+cperl doesn't use the slow Siphash 1-3 as default on 64bit, and no
+hybrid hash function as introduced with 5.25.8. cperl rather uses a
+short and fast hash function and other typical hash table
+optimizations, while adding proper security in the collision
+resolution instead. A secure PRF (pseudo random function) can never
+ensure DoS safety for a hash table, contrary to the Siphash paper
+claims.
+=======
+XXX Any important notices here
+>>>>>>>
+
+=head1 Core Enhancements
+
+<<<<<<<
+=head2 No magic to undef/yes/no/placeholder SVs
+
+cperl silently forbids attaching magic to the four major builtin SV
+sentinels undef, yes, no and placeholder, which are mostly compared to
+by pointer. Adding magic to them will break that comparison.
+
+=head2 C3 MRO is the new default
+
+The default MRO switched from the DFS (depth-first-search) to the
+recommended C3 algorithm, which was previously optional. All object
+system based on inheritence need to use C3 to avoid the diamond
+problem. And this change speeds it up, avoiding run-time loading of
+F<ext/mro>.
+
+=head2 Type-check assignments
+
+Assignment type violations are now also warned, with C<use warnings 'types'>
+enabled, previously only signature types were checked.
+Only signature type violations or C<use types 'strict'> violations
+are fatal.
+
+Note that the type system is still completely unsound. So far it is
+only there to catch the most common errors and enable coretype
+optimizations.
+cperl only.
+
+=head2 HvCLASS
+
+With cperl C<use base> or C<use fields> now closes the C<@ISA> and
+hereby enable compile-time checks and optimizations. The new
+C<Internals::HvCLASS> function gets or sets the same type for
+B<base>/B<field> classes as with the upcoming class keyword.
+
+See L<[cperl #249]|https://github.com/perl11/cperl/issues/249>.
+cperl only.
+
+=head2 Type-infer bless
+
+bless with a constant 2nd argument, the classname, infers this type to
+the enclosing sub if its the last statement in a body, or to the
+left-side assignment of a lexical variable.
+cperl only.
+
+=head2 Type-infer subroutine return types
+
+Subroutine types, either declared or inferred, are now passed through
+to the type-checker at compile-time.
+cperl only.
+
+=head2 for qw() is legal again
+
+perl5.14 deprecated and 5.18 started disallowing a
+L<for|perlsyn/"Statement Modifiers"> loop with a
+L<qw()|perlop/"qw/STRING/"> list, "qw-as-parens".
+
+The rationale to remove the handy C<for qw()> syntax was technical and
+trivial to fix.  cperl 5.25.3 re-instated it for C<for> loops, but
+not for the rest.  cperl does not insist on the backwards syntax to
+require C<(qw( ... ))> around the C<for> list.
+
+   cperl5.25.3 -e'for qw(a b c) { print $_ }'
+
+   perl5.18 -e'for (qw(a b c)) { print $_ }'
+
+   perl5.14 -e'for $_ qw(a b c) { print $_ }'
+   => Use of qw(...) as parentheses is deprecated at -e line 1
+
+   perl5.12  -e'for $_ qw(a b c) { print $_ }'
+
+The new additional cperl syntax is even easier to use than before.
+See L<[cperl #26]|https://github.com/perl11/cperl/issues/26>.
+cperl only.
+
+=head2 Perl can now do default collation in UTF-8 locales on platforms
+that support it
+
+Some platforms natively do a reasonable job of collating and sorting in
+UTF-8 locales.  Perl now works with those.  For portability and full
+control, L<Unicode::Collate> is still recommended, but now you may
+not need to do anything special to get good-enough results, depending on
+your application.  See
+L<perllocale/Category C<LC_COLLATE>: Collation: Text Comparisons and Sorting>
+
+=head2 Better locale collation of strings containing embedded C<NUL>
+characters
+
+In locales that have multi-level character weights, these are now
+ignored at the higher priority ones.  There are still some gotchas in
+some strings, though.  See
+L<perllocale/Collation of strings containing embedded C<NUL> characters>.
+
+=head2 Unescaped literal C<"{"> characters in regular expression
+patterns are no longer permissible
+
+You have to now say something like C<"\{"> or C<"[{]"> to specify to
+match a LEFT CURLY BRACKET.  This will allow future extensions to the
+language.  This restriction is not enforced, nor are there current plans
+to enforce it, if the C<"{"> is the first character in the pattern.
+
+These have been deprecated since v5.16, with a deprecation message
+displayed starting in v5.22.
+
+=head2 Literal control character variable names are no longer permissible
+
+A variable name may no longer contain a literal control character under
+any circumstances.  These previously were allowed in single-character
+names on ASCII platforms, but have been deprecated there since Perl
+v5.20.  This affects things like C<$I<\cT>>, where I<\cT> is a literal
+control (such as a C<NAK> or C<NEGATIVE ACKNOWLEDGE> character) in the
+source code.
+
+=head2 New regular expression modifier C</xx>
+
+Specifying two C<x> characters to modify a regular expression pattern
+does everything that a single one does, but additionally TAB and SPACE
+characters within a bracketed character class are generally ignored and
+can be added to improve readability, like
+S<C</[ ^ A-Z d-f p-x ]/xx>>.  Details are at
+L<perlre/E<sol>x and E<sol>xx>.
+
+=head2 C<NBSP> is no longer permissible in C<\N{...}>
+
+The name of a character may no longer contain non-breaking spaces.  It
+has been deprecated to do so since Perl v5.22.
+
+=head2 C<CORE> subroutines for hash and array functions callable via
+reference
+
+The hash and array functions in the C<CORE> namespace--C<keys>, C<each>,
+C<values>, C<push>, C<pop>, C<shift>, C<unshift> and C<splice>--, can now
+be called with ampersand syntax (C<&CORE::keys(\%hash>) and via reference
+(C<< my $k = \&CORE::keys; $k->(\%hash) >>).  Previously they could only be
+used when inlined.
+
+=head2 Unicode 9.0 is now supported
+
+A list of changes is at
+L<http://www.unicode.org/versions/Unicode9.0.0/>.  Modules that are
+shipped with core Perl but not maintained by p5p do not necessarily
+support Unicode 9.0.  L<Unicode::Normalize> does work on 9.0.
+
+Note that some changed UCD database files in 9.0 stayed renamed to their
+shortened name in perl.
+
+=head2 Use of C<\p{I<script>}> uses the improved Script_Extensions property
+
+Unicode 6.0 introduced an improved form of the Script (C<sc>) property, and
+called it Script_Extensions (C<scx>).  As of now, Perl uses this improved
+version when a property is specified as just C<\p{I<script>}>.  The meaning of
+compound forms, like C<\p{sc=I<script>}> are unchanged.  This should make
+programs be more accurate when determining if a character is used in a given
+script, but there is a slight chance of breakage for programs that very
+specifically needed the old behavior.  See L<perlunicode/Scripts>.
+
+=head2 Declaring a reference to a variable
+
+As an experimental feature, Perl now allows the referencing operator to come
+after L<C<my()>|perlfunc/my>, L<C<state()>|perlfunc/state>,
+L<C<our()>|perlfunc/our>, or L<C<local()>|perlfunc/local>.  This syntax must
+be enabled with C<use feature 'declared_refs'>.  It is experimental, and will
+warn by default unless C<no warnings 'experimental::refaliasing'> is in effect.
+It is intended mainly for use in assignments to references.  For example:
+
+    use experimental 'refaliasing', 'declared_refs';
+    my \$a = \$b;
+
+See L<perlref/Assigning to References> for slightly more detail.
+
+Note that this still looks much worse than the perl6 bind operator:
+    my $a := $b;
+
+=head2 Indented Here-documents
+
+This adds a new modifier '~' to here-docs that tells the parser
+that it should look for /^\s*$DELIM\n/ as the closing delimiter.
+
+These syntaxes are all supported:
+
+    <<~EOF;
+    <<~\EOF;
+    <<~'EOF';
+    <<~"EOF";
+    <<~`EOF`;
+    <<~ 'EOF';
+    <<~ "EOF";
+    <<~ `EOF`;
+
+The '~' modifier will strip, from each line in the here-doc, the
+same whitespace that appears before the delimiter.
+
+Newlines will be copied as is, and lines that don't include the
+proper beginning whitespace will cause perl to croak.
+
+For example:
+
+    if (1) {
+      print <<~EOF;
+        Hello there
+        EOF
+    }
+
+prints "Hello there\n" with no leading whitespace.
+
+=head2 '.' and @INC
+
+The old cperl C<-Dfortify_inc> security feature was now also
+introduced by perl5 and renamed to C<-Ddefault_inc_excludes_dot>.
+
+Because the testing and make process for perl modules does not work well with
+C<.> missing from @INC, cperl and perl5 still support the environment variable
+C<PERL_USE_UNSAFE_INC=1> which makes Perl behave as it previously did, returning
+C<.> to @INC in all child processes.
+
+=head2 create a safer utf8_hop() called utf8_hop_safe()
+
+Unlike C<utf8_hop()>, C<utf8_hop_safe()> won't navigate before the
+beginning or after the end of the supplied buffer.
+
+=head2 @{^CAPTURE}, %{^CAPTURE}, and %{^CAPTURE_ALL}
+
+C<@{^CAPTURE}> exposes the capture buffers of the last match as an array. So C<$1> is
+C<${^CAPTURE}[0]>.
+
+C<%{^CAPTURE}> is the equivalent to C<%+> (ie named captures)
+=======
+XXX New core language features go here.  Summarize user-visible core language
+enhancements.  Particularly prominent performance optimisations could go
+here, but most should go in the L</Performance Enhancements> section.
+>>>>>>>
+
+[ List each enhancement as a =head2 entry ]
+
+=head1 Security
+
+XXX Any security-related notices go here.  In particular, any security
+vulnerabilities closed should be noted here rather than in the
+L</Selected Bug Fixes> section.
+
+[ List each security issue as a =head2 entry ]
+
+=head1 Incompatible Changes
+
+XXX For a release on a stable branch, this section aspires to be:
+
+    There are no changes intentionally incompatible with 5.XXX.XXX
+    If any exist, they are bugs, and we request that you submit a
+    report.  See L</Reporting Bugs> below.
+
+[ List each incompatible change as a =head2 entry ]
+
+=head1 Deprecations
+
+XXX Any deprecated features, syntax, modules etc. should be listed here.
+
+=head2 Module removals
+
+XXX Remove this section if inapplicable.
+
+The following modules will be removed from the core distribution in a
+future release, and will at that time need to be installed from CPAN.
+Distributions on CPAN which require these modules will need to list them as
+prerequisites.
+
+The core versions of these modules will now issue C<"deprecated">-category
+warnings to alert you to this fact.  To silence these deprecation warnings,
+install the modules in question from CPAN.
+
+Note that these are (with rare exceptions) fine modules that you are encouraged
+to continue to use.  Their disinclusion from core primarily hinges on their
+necessity to bootstrapping a fully functional, CPAN-capable Perl installation,
+not usually on concerns over their design.
+
+=over
+
+=item XXX
+
+XXX Note that deprecated modules should be listed here even if they are listed
+as an updated module in the L</Modules and Pragmata> section.
+
+=back
+
+[ List each other deprecation as a =head2 entry ]
+
+=head1 Performance Enhancements
+
+XXX Changes which enhance performance without changing behaviour go here.
+There may well be none in a stable release.
+
+[ List each enhancement as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Modules and Pragmata
+
+XXX All changes to installed files in F<cpan/>, F<dist/>, F<ext/> and F<lib/>
+go here.  If Module::CoreList is updated, generate an initial draft of the
+following sections using F<Porting/corelist-perldelta.pl>.  A paragraph summary
+for important changes should then be added by hand.  In an ideal world,
+dual-life modules would have a F<Changes> file that could be cribbed.
+
+[ Within each section, list entries as a =item entry ]
+
+=head2 New Modules and Pragmata
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item *
+
+L<XXX> has been upgraded from version A.xx to B.yy.
+
+=back
+
+=head2 Removed Modules and Pragmata
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Documentation
+
+XXX Changes to files in F<pod/> go here.  Consider grouping entries by
+file and be sure to link to the appropriate page, e.g. L<perlfunc>.
+
+=head2 New Documentation
+
+XXX Changes which create B<new> files in F<pod/> go here.
+
+=head3 L<XXX>
+
+XXX Description of the purpose of the new file here
+
+=head2 Changes to Existing Documentation
+
+XXX Changes which significantly change existing files in F<pod/> go here.
+However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
+section.
+
+=head3 L<XXX>
+
+=over 4
+
+=item *
+
+XXX Description of the change here
+
+=back
+
+=head1 Diagnostics
+
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
+
+XXX New or changed warnings emitted by the core's C<C> code go here.  Also
+include any changes in L<perldiag> that reconcile it to the C<C> code.
+
+=head2 New Diagnostics
+
+XXX Newly added diagnostic messages go under here, separated into New Errors
+and New Warnings
+
+=head3 New Errors
+
+=over 4
+
+=item *
+
+XXX L<message|perldiag/"message">
+
+=back
+
+=head3 New Warnings
+
+=over 4
+
+=item *
+
+XXX L<message|perldiag/"message">
+
+=back
+
+=head2 Changes to Existing Diagnostics
+
+XXX Changes (i.e. rewording) of diagnostic messages go here
+
+=over 4
+
+=item *
+
+XXX Describe change here
+
+=back
+
+=head1 Utility Changes
+
+XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
+Most of these are built within the directory F<utils>.
+
+[ List utility changes as a =head2 entry for each utility and =item
+entries for each change
+Use L<XXX> with program names to get proper documentation linking. ]
+
+=head2 L<XXX>
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Configuration and Compilation
+
+XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
+go here.  Any other changes to the Perl build process should be listed here.
+However, any platform-specific changes should be listed in the
+L</Platform Support> section, instead.
+
+[ List changes as a =item entry ].
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Testing
+
+XXX Any significant changes to the testing of a freshly built perl should be
+listed here.  Changes which create B<new> files in F<t/> go here as do any
+large changes to the testing harness (e.g. when parallel testing was added).
+Changes to existing files in F<t/> aren't worth summarizing, although the bugs
+that they represent may be covered elsewhere.
+
+[ List each test improvement as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Platform Support
+
+XXX Any changes to platform support should be listed in the sections below.
+
+[ Within the sections, list each platform as a =item entry with specific
+changes as paragraphs below it. ]
+
+=head2 New Platforms
+
+XXX List any platforms that this version of perl compiles on, that previous
+versions did not.  These will either be enabled by new files in the F<hints/>
+directories, or new subdirectories and F<README> files at the top level of the
+source tree.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head2 Discontinued Platforms
+
+XXX List any platforms that this version of perl no longer compiles on.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head2 Platform-Specific Notes
+
+XXX List any changes for specific platforms.  This could include configuration
+and compilation changes or changes in portability/compatibility.  However,
+changes within modules for platforms should generally be listed in the
+L</Modules and Pragmata> section.
+
+=over 4
+
+=item XXX-some-platform
+
+XXX
+
+=back
+
+=head1 Internal Changes
+
+XXX Changes which affect the interface available to C<XS> code go here.  Other
+significant internal changes for future core maintainers should be noted as
+well.
+
+[ List each change as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Selected Bug Fixes
+
+XXX Important bug fixes in the core language are summarized here.  Bug fixes in
+files in F<ext/> and F<lib/> are best summarized in L</Modules and Pragmata>.
+
+[ List each fix as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Known Problems
+
+XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
+tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
+platform specific bugs also go here.
+
+[ List each fix as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Errata From Previous Releases
+
+=over 4
+
+=item *
+
+XXX Add anything here that we forgot to add, or were mistaken about, in
+the perldelta of a previous release.
+
+=back
+
+=head1 Obituary
+
+XXX If any significant core contributor has died, we've added a short obituary
+here.
+
+=head1 Acknowledgements
+
+XXX Generate this with:
+
+    cperl Porting/acknowledgements.pl cperl-5.25.3..HEAD
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
