@@ -1,0 +1,144 @@
+=head1 NAME
+
+perldeprecation - list Perl deprecations
+
+=head1 DESCRIPTION
+
+The purpose of this document is to document what has been deprecated
+in Perl, and by which version the deprecated feature will disappear,
+or, for already removed features, when it was removed.
+
+This document will try to discuss what alternatives for the deprecated
+features are available.
+
+The deprecated features will be grouped by the version of Perl in
+which they will be removed.
+
+=head2 Perl 5.30
+
+=head3 C<< File::Glob::glob() >> will disappear
+
+C<< File::Glob >> has a function called C<< glob >>, which just calls
+C<< bsd_glob >>. However, its prototype is different from the prototype
+of C<< CORE::glob >>, and hence, C<< File::Glob::glob >> should not
+be used.
+
+C<< File::Glob::glob() >> was deprecated in Perl 5.8. A deprecation
+message was issued from Perl 5.26 onwards, and the function will
+disappear in Perl 5.30.
+
+Code using C<< File::Glob::glob() >> should call
+C<< File::Glob::bsd_glob() >> instead.
+
+=head2 Perl 5.28
+
+=head3 Attribute "%s" is deprecated, and will disappear in 5.28
+
+The attributes C<< :locked >> (on code references) and C<< :unique >>
+(on array, hash and scalar references) have had no effect since 
+Perl 5.005 and Perl 5.8.8 respectively. Their use has been deprecated
+since.
+
+These attributes will no longer be recognized in Perl 5.28, and will
+then result in a syntax error. Since the attributes do not do anything,
+removing them from your code fixes the deprecation warning; and removing
+them will not influence the behaviour of your code.
+
+=head3 Using the same symbol to open a filehandle and a dirhandle
+
+It used to be legal to use C<open()> to associate both a
+filehandle and a dirhandle to the same symbol (glob or scalar).
+This idiom is likely to be confusing, and it was deprecated in
+Perl 5.10.
+
+Using the same symbol to C<open()> a filehandle and a dirhandle
+will be a fatal error in Perl 5.28.
+
+You should be using two different symbols instead.
+
+=head3 ${^ENCODING} is no longer supported.
+
+The special variable C<${^ENCODING}> was used to implement the
+C<encoding> pragma. Setting this variable to anything other than
+C<undef> was deprecated in Perl 5.22. Full deprecation of the variable
+happened in Perl 5.25.3, but this feature is kept and was undeprecated
+in cperl v5.26c.
+
+Setting this variable will become a fatal error in Perl 5.28,
+and will be supported in cperl.
+
+=head2 Perl 5.24
+
+=head3 Use of C<< *glob{FILEHANDLE} >>
+
+The use of C<< *glob{FILEHANDLE} >> was deprecated in Perl 5.8.
+The intention was to use C<< *glob{IO} >> instead, for which 
+C<< *glob{FILEHANDLE} >> is an alias.
+
+However, this feature was undeprecated in Perl 5.24.
+
+=head3 Calling POSIX::%s() is deprecated
+
+The following functions in the C<POSIX> module are no longer available:
+C<isalnum>, C<isalpha>, C<iscntrl>, C<isdigit>, C<isgraph>, C<islower>,  
+C<isprint>, C<ispunct>, C<isspace>, C<isupper>, and C<isxdigit>.  The 
+functions are buggy and don't work on UTF-8 encoded strings.  See their
+entries in L<POSIX> for more information.
+
+The functions were deprecated in Perl 5.20, and removed in Perl 5.24.
+
+
+=head2 Perl 5.16
+
+=head3 Use of %s on a handle without * is deprecated
+
+It used to be possible to use C<tie>, C<tied> or C<untie> on a scalar
+while the scalar holds a typeglob. This caused its filehandle to be
+tied. It left no way to tie the scalar itself when it held a typeglob,
+and no way to untie a scalar that had had a typeglob assigned to it.
+
+This was deprecated in Perl 5.14, and the bug was fixed in Perl 5.16.
+
+So now C<tie $scalar> will always tie the scalar, not the handle it holds.
+To tie the handle, use C<tie *$scalar> (with an explicit asterisk).  The same
+applies to C<tied *$scalar> and C<untie *$scalar>.
+
+
+=head2 Perl 5.10
+
+=head3 $* is no longer supported
+
+C<$*> was once a magic variable. C<$*> enabled or disabled
+multi-line matching within a string. Deprecated since Perl 5.000,
+its special meaning was removed in Perl 5.10. Aftwards, an
+deprecation message was issued when using this variable; this message
+was discontinued in Perl 5.26.
+
+Instead of using C<$*> you should use the C</m> (and maybe C</s>) regexp
+modifiers.  You can enable C</m> for a lexical scope (even a whole file)
+with C<use re '/m'>.  (In older versions: when C<$*> was set to a true value
+then all regular expressions behaved as if they were written using C</m>.)
+
+Although you can use C<$*> as a normal variable, you are discouraged 
+from doing so.
+
+=head3 $# is no longer supported
+
+C<$#> was once a magic variable. C<$#> could be used to format
+printed numbers. Deprecated since Perl 5.000,
+its special meaning was removed in Perl 5.10. Aftwards, an
+deprecation message was issued when using this variable; this message
+was discontinued in Perl 5.26.
+
+Instead of using C<$#>, you should be using C<(s)printf> to format
+your numbers.
+
+Although you can use C<$#> as a normal variable, you are discouraged 
+from doing so.
+
+
+=head1 SEE ALSO
+
+L<warnings>, L<diagnostics>.
+
+=cut
