@@ -1,0 +1,149 @@
+version: 5.27.0.{build}
+#skip_tags: true
+#os: MinGW
+#os: Visual Studio 2015
+#os: Default Azure
+#build:
+#  verbosity: minimal
+platform:
+  - x64
+  - x86
+environment:
+  matrix:
+<<<<<<<
+    - MSVC_VERSION: 12
+    #- MINGW: 1
+    - CYGWIN: 1
+    - MSVC_VERSION: 10
+    - MSVC_VERSION: 14
+matrix:
+  exclude:
+    - platform: x86
+      MSVC_VERSION: 10
+    - platform: x86
+      MSVC_VERSION: 14
+  allow_failures:
+    - MINGW: 1
+=======
+    - MSVC_VERSION: 12
+    #- MSVC_VERSION: 10
+    #- MSVC_VERSION: 14
+>>>>>>>
+clone_depth: 1
+branches:
+  only:
+    - master
+    - /^smoke/
+    - /^maint-/
+    - /^cperl-/
+    - /^win/
+
+init:
+  - git config --global core.autocrlf input
+  # Disable popups as they hang the build as there is nobody to click on the OK button...
+  # Hanging the build is a lot less user friendly than reporting a build failure.
+  #
+  # Disable of system hard error popup
+  # See: https://msdn.microsoft.com/en-us/library/bb513638%28VS.85%29.aspx
+  - reg add "HKLM\SYSTEM\CurrentControlSet\Control\Windows" /f /v ErrorMode /d 2
+  # Disable the following popup on program failure:
+  #     |       ** <program name> has stopped working **        |
+  #     | Windows can check online for a solution to the problem|
+  #     |  - Check online for a solution and close the program  |
+  #     |  - Close the program                                  |
+  # See: https://msdn.microsoft.com/en-us/library/bb513638%28VS.85%29.aspx
+  - reg add "HKLM\Software\Microsoft\Windows\Windows Error Reporting" /f /v DontShowUI /d 1  
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - if "%PLATFORM%"=="x64" set MSYS64=C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64
+  #- if "%PLATFORM%"=="x86" set MSYS64=C:\mingw-w64\i686-6.3.0-posix-dwarf-rt_v5-rev1\mingw32
+  - if "%PLATFORM%"=="x86" set MSYS64=C:\MinGW
+  - if "%MINGW%"=="1" set PROCESSOR_ARCHITECTURE=%PLATFORM%
+  - if "%MINGW%"=="1" set MKOPT="CFG=Debug"
+  - if "%PLATFORM%"=="x64" set PROCESSOR_ARCHITECTURE=AMD64
+  - if "%PLATFORM%"=="x64" set CCLIBDIR=%MSYS64%\lib
+  - if "%MINGW%"=="1" set PATH=%MSYS64%\bin;c:\Windows\system32;c:\Windows;C:\MinGW\msys\1.0\bin;c:\Windows\system32\Wbem;C:\MinGW\bin;C:\Program Files\Git\cmd
+  #- set
+  #- dir C:\mingw-w64\
+  #- dir C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1
+  #- if "%MINGW%"=="1" dir %MSYS64%\bin
+  - if "%MINGW%"=="1" copy %MSYS64%\bin\mingw32-make.exe %MSYS64%\bin\make.exe
+  - if "%MINGW%"=="1" copy %MSYS64%\bin\mingw32-make.exe %MSYS64%\bin\gmake.exe
+  - if "%PLATFORM%"=="x86" set WIN64=undef
+  - set CYGR=c:\cygwin
+  - if "%PLATFORM%"=="x64" set CYGR=c:\cygwin64
+  - if "%CYGWIN%"=="1" set PATH=%CYGR%\bin;c:\Windows\system32;c:\Windows;c:\Windows\system32\Wbem
+
+build_script:
+  - if "%MINGW%"=="1"  make -s -C win32 %MKOPT%
+  - if "%CYGWIN%"=="1" sh ./Configure -des -Dusedevel & make
+
+test_script:
+  - ps: if ($env:MSVC_VERSION -gt 0) {
+      $A = Start-Process -FilePath .\t\appveyor-smoke.bat -Wait -passthru;$a.ExitCode }
+  - if "%CYGWIN%"=="1" make -s test
+  - if "%MINGW%"=="1"  make -s -C win32 %MKOPT% test
+
+before_deploy:  
+  - if "%CYGWIN%"=="1" %CYGR%\bin\sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/cygdrive/c/projects/cperl/inst && tar cvfj ${APPVEYOR_REPO_TAG_NAME}-cygwin-${platform}.tar.bz2 -C /cygdrive/c/projects/cperl/inst"
+  - if "%MINGW%"=="1" sh -lc "cd $APPVEYOR_BUILD_FOLDER; make install DESTDIR=/c/projects/cperl/inst && tar cvfj ${APPVEYOR_REPO_TAG_NAME}-mingw-${platform}.tar.bz2 -C /c/projects/cperl/inst"
+
+# appveyor cannot glob * in names
+artifacts:
+  - path: cperl-$(appveyor_build_version)-win32.exe
+    name: nightly-32
+    type: exe
+  - path: cperl-$(appveyor_build_version)-win64.exe
+    name: nightly-64
+    type: exe
+  - path: $(APPVEYOR_REPO_TAG_NAME)-win32.exe
+    name: tagged-32
+    type: exe
+  - path: $(APPVEYOR_REPO_TAG_NAME)-win64.exe
+    name: tagged-64
+    type: exe
+  - path: $(APPVEYOR_REPO_TAG_NAME)-cygwin-x86.tar.bz2
+    name: cygwin-32
+    type: tar
+  - path: $(APPVEYOR_REPO_TAG_NAME)-cygwin-x64.tar.bz2
+    name: cygwin-64
+    type: tar
+  - path: $(APPVEYOR_REPO_TAG_NAME)-mingw-x86.tar.bz2
+    name: mingw-32
+    type: tar
+  - path: $(APPVEYOR_REPO_TAG_NAME)-mingw-x64.tar.bz2
+    name: mingw-64
+    type: tar
+
+deploy:
+- provider: GitHub
+  tag: cperl-win-$(appveyor_build_version)
+  description: 'cperl windows sfx nightly (msvcr120.dll)'
+  auth_token:
+    secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
+  artifact: nightly-32,nightly-64
+  draft: true
+  prerelease: true
+  force_update: true
+  on:
+    branch: /(master|relprep|cperl-tag-deploy-test)/
+    MSVC_VERSION: 12
+- provider: GitHub
+  tag: $(APPVEYOR_REPO_TAG_NAME)-win
+  description: 'cperl windows sfx tagged (msvcr120.dll)'
+  auth_token:
+    secure: AsIAOIgCJX0QhrUKal2V00aaB5nRWtmtFTFeDVsGnbJLeEQpv9avUp0HT1cA8bNs
+  artifact: tagged-32,tagged-64,cygwin-32,cygwin-64,mingw-32,mingw-64
+  draft: true
+  force_update: true
+  on:
+    appveyor_repo_tag: true
+    #MSVC_VERSION: 12
+
+notifications:
+- provider: Email
+  to:
+  - rurban@cpan.org
+  subject: cperl windows build
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false
