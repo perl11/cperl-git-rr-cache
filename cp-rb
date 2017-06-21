@@ -138,6 +138,8 @@ do
     fi
 done
 
+rb smoke/gh22-ffi master
+
 # (for later deeper subtrees)
 #declare -a feat
 #feat=(feature/gh7-signatures
@@ -153,5 +155,5 @@ done
 #rb old/gh7-signatures3-gh25-nl  feature/gh7-signatures
 #rb old/gh7-signatures3-gh25-nl1 feature/gh7-signatures
 
-git checkout branch-point
+git checkout master
 git branch | egrep 'branch-point|master|bugfix/|feature|smoke/|win/'
