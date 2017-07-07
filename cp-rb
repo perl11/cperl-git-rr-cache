@@ -118,6 +118,12 @@ done
 #rb featurex/gh24-hash-loop+utf8 featurex/gh24-hash-loop
 #rb featurex/gh24-one-word-ahe   featurex/gh24-array_he
 
+# feature/gh16-class -> featurex/gh16-multi, featurex/gh16-has
+for b in `git branch --list --no-color | cut -c3- | grep '^featurex/gh16-'`
+do
+    rb $b feature/gh16-class
+done
+
 for b in `git branch --list --no-color | cut -c3- \
           | grep '^smoke/' | grep -v 'smoke/maint-5'`
 do
@@ -131,6 +137,9 @@ do
     elif [ $b == smoke/gh24-array_he ]; then
         git checkout $b
         git reset --hard featurex/gh24-array_he
+    elif [ $b == smoke/gh16-class ]; then
+        git checkout $b
+        git reset --hard feature/gh16-class
     elif [ $b == smoke/master ]; then
         rb $b branch-point
     else
@@ -138,7 +147,7 @@ do
     fi
 done
 
-rb smoke/gh22-ffi master
+#rb smoke/gh22-ffi master
 
 # (for later deeper subtrees)
 #declare -a feat
