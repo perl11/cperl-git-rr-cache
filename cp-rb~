@@ -110,8 +110,6 @@ do
         rb $b featurex/gh24-array_he
     elif [ $b == featurex/gh24-open-hash ]; then
         rb $b featurex/gh24-array_he
-    elif [ $b == featurex/gh24-hopscotch-hash ]; then
-        rb $b featurex/gh24-open-hash
     else
         rb $b feature/gh24-base-hash
     fi
