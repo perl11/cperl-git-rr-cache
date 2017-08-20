@@ -98,6 +98,15 @@ rb featurex/CM-367-cperl-warnings-xs-carp feature/CM-367-cperl-carp-builtin
 #rb smoke/gh121-storable-u64 branch-point
 #rb smoke/gh121+gh123-sizes  smoke/gh121-storable-u64
 
+#rb featurex/gh21-exact_arith feature/gh21-locale-hints
+#rb featurex/gh21-exact_arith1 feature/gh21-locale-hints
+#rb feature/gh21-exact_arith_num feature/gh21-locale-hints
+
+for b in `git branch --list --no-color | cut -c3- | grep '^featurex/gh21-'`
+do
+    rb $b feature/gh21-locale-hints
+done
+
 # based on feature/gh24-base-hash
 rb featurex/gh24-hash-loop feature/gh24-base-hash
 for b in `git branch --list --no-color | cut -c3- | grep '^featurex/gh24-'`
