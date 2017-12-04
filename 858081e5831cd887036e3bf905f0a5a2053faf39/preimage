@@ -1,3 +1,5 @@
+# Regenerate this file using:
+#     ./perl -Ilib t/porting/customized.t --regen
 Archive::Tar cpan/Archive-Tar/t/90_symlink.t 66a29edeff869c6569051aaecfc59b6624477be9
 B::C cpan/B-C/t/test10 0b3ab672868ee49e8539649aad1ad8c940c4c420
 CPAN cpan/CPAN/lib/App/Cpan.pm fcfc8800fa3dbff061da3688ad6a6fdd3716fbc8
@@ -21,40 +23,40 @@ CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/lib/CPAN/Meta/Requirements.
 CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/accepts.t 35d1924588d5f9f89aec2164476eb98e93f05a5e
 CPAN::Meta::Requirements dist/CPAN-Meta-Requirements/t/strings.t 86347bcaac1ccbf0eb5e96a544eba22bbdef9365
 CPAN::Meta::YAML cpan/CPAN-Meta-YAML/t/lib/TestUtils.pm 89535dc9f122a77a8320df27e5929aa574196753
-Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Makefile.PL f91c0e255ad9fded4b1107651b360bc3a45fdd05
+Compress::Raw::Zlib cpan/Compress-Raw-Zlib/Makefile.PL 269a30b1f30a0a1458b91372c7d72915e5312d71
 Config::Perl::V cpan/Config-Perl-V/t/28_plv522c.t ec21436d9dde53ca06b46dd07476a109b8047464
-Config::Perl::V cpan/Config-Perl-V/V.pm 74b5c9278c618b0dc2534064f804228588cda18b
+Config::Perl::V cpan/Config-Perl-V/V.pm 31c7197ebc05774a24a72d078ac956af7d19e023
 DB_File cpan/DB_File/Makefile.PL 20e1908f4eb938a399daa7fef289ebb0a39b7435
 Devel::NYTProf cpan/Devel-NYTProf/FileHandle.xs 59ec3924cf3542c5c0c44400343bf455821f15df
 Devel::NYTProf cpan/Devel-NYTProf/lib/Devel/NYTProf/FileInfo.pm 913665651ffa5415b71adb39c269559e74c35b0e
 Devel::NYTProf cpan/Devel-NYTProf/Makefile.PL b4ac09392761ca3ce49d46026b782698f5eec7d0
 Devel::NYTProf cpan/Devel-NYTProf/MemoryProfiling.pod 197e08c2c2cc300d8166da35738a1a51ebdb960a
+Devel::NYTProf cpan/Devel-NYTProf/NYTProf.xs d1caee686b31a0492ddef09b526efdcba2182584
 Devel::NYTProf cpan/Devel-NYTProf/t/00-load.t e7821564000c7227a0b7deafdad0740b8327b39f
 Devel::NYTProf cpan/Devel-NYTProf/t/22-readstream.t 58f166ae768877e8f2ec4a6149b6ba35faa11ead
 Devel::NYTProf cpan/Devel-NYTProf/t/lib/NYTProfTest.pm bc6efbd91bce9b1eae3c341c482dde0ac4c990c5
-Devel::PPPort cpan/Devel-PPPort/Makefile.PL e5a7697054dd2e9cce0ee35e8183af28d8e08ef3
-Devel::PPPort cpan/Devel-PPPort/parts/apidoc.fnc 5f2259de48957df7f7f9cc80d86f202f582ecc6a
-Devel::PPPort cpan/Devel-PPPort/parts/embed.fnc 4f0089448f0054db52df4684b4b2466a3b629bb8
-Devel::PPPort cpan/Devel-PPPort/parts/inc/gv ac0ff3ba4cf4b86852c4338a12c5fe27fe7016a6
-Devel::PPPort cpan/Devel-PPPort/parts/inc/HvNAME 5fa336117cbb7f06b8d442ed7bc78ffe34a0ab1f
-Devel::PPPort cpan/Devel-PPPort/parts/inc/misc 91845c5a0081d45a23e9de4a664eae8a01244fe2
-Devel::PPPort cpan/Devel-PPPort/parts/inc/ppphbin e700553a5f9b790f3f712394658a86d94e108f03
-Devel::PPPort cpan/Devel-PPPort/parts/todo/5013007 0446df4a31dcd58b8e27ab9e810711f0e4840fee
-Devel::PPPort cpan/Devel-PPPort/parts/todo/5015004 4bdb7b2545380ade42e22dbb097f7fbf07737393
-Devel::PPPort cpan/Devel-PPPort/ppport_h.PL 3aa0b958adf67a9b9385bf2b5b89ecf8cdd391c7
-Devel::PPPort cpan/Devel-PPPort/PPPort_pm.PL 98e47dcf2a859290d0bba38cf6d34e729f59bcf2
-Devel::PPPort cpan/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c65781553
-Devel::PPPort cpan/Devel-PPPort/t/testutil.pl 6d9502a22d0df23ba42f6b808c9c7d5fe65f5024
+Devel::PPPort dist/Devel-PPPort/Makefile.PL e5a7697054dd2e9cce0ee35e8183af28d8e08ef3
+Devel::PPPort dist/Devel-PPPort/parts/apidoc.fnc 5f2259de48957df7f7f9cc80d86f202f582ecc6a
+Devel::PPPort dist/Devel-PPPort/parts/embed.fnc 4f0089448f0054db52df4684b4b2466a3b629bb8
+Devel::PPPort dist/Devel-PPPort/parts/inc/gv ac0ff3ba4cf4b86852c4338a12c5fe27fe7016a6
+Devel::PPPort dist/Devel-PPPort/parts/inc/HvNAME 5fa336117cbb7f06b8d442ed7bc78ffe34a0ab1f
+Devel::PPPort dist/Devel-PPPort/parts/inc/magic_defs ac209f122b095dc87065f9bed88e7408a9bccb31
+Devel::PPPort dist/Devel-PPPort/parts/inc/misc 91845c5a0081d45a23e9de4a664eae8a01244fe2
+Devel::PPPort dist/Devel-PPPort/parts/inc/ppphbin e700553a5f9b790f3f712394658a86d94e108f03
+Devel::PPPort dist/Devel-PPPort/parts/todo/5013007 0446df4a31dcd58b8e27ab9e810711f0e4840fee
+Devel::PPPort dist/Devel-PPPort/parts/todo/5015004 4bdb7b2545380ade42e22dbb097f7fbf07737393
+Devel::PPPort dist/Devel-PPPort/ppport_h.PL 3aa0b958adf67a9b9385bf2b5b89ecf8cdd391c7
+Devel::PPPort dist/Devel-PPPort/PPPort_pm.PL 98e47dcf2a859290d0bba38cf6d34e729f59bcf2
+Devel::PPPort dist/Devel-PPPort/PPPort_xs.PL 034cce281a0017fe0ba05d9060f34a8c65781553
+Devel::PPPort dist/Devel-PPPort/t/testutil.pl 6d9502a22d0df23ba42f6b808c9c7d5fe65f5024
 Digest::MD5 cpan/Digest-MD5/Makefile.PL 3b5b9693e5a22f5189878d84833b10f98136e619
 Digest::MD5 cpan/Digest-MD5/MD5.pm 866a0ca11d63c257f3c90974704b88c9361e705c
 Digest::MD5 cpan/Digest-MD5/MD5.xs 304837872d60ba16300f85771abaa7c40fabadf3
 Digest::MD5 cpan/Digest-MD5/t/files.t 39ff314a4eee7a7e2d66254ffecf8d05f2761213
 Encode cpan/Encode/encoding.pm 779656f3a83bf7c39625a9fc3a0b1d6723dc29b5
 Encode cpan/Encode/t/Aliases.t 95bf948f5dbdd4f775904baf2111413b66a5944d
-ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 9061ebec404019e812d03fa7227dd435d7a71046
+ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/00-have-compiler.t 30dbb8884acdb910e79649be5c72e350be27eb36
 ExtUtils::CBuilder dist/ExtUtils-CBuilder/t/03-cplusplus.t 71a03fe898634486a5181ac32b6a98f03bb9a914
-ExtUtils::Install cpan/ExtUtils-Install/lib/ExtUtils/Install.pm 0004c64c78cd90f20dc8186261c1b1e291537b9f
-ExtUtils::Install cpan/ExtUtils-Install/t/lib/MakeMaker/Test/Setup/BFD.pm d458c84cf9312319dc588bce371a1ddffb5def3a
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm 62563c9fc18ae5ae8f0800ae0554f8258e53eec8
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker.pm 9765d225fed7b96cd8d6c40c802a7fb74fa009b6
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/lib/ExtUtils/MakeMaker/Locale.pm 07850b6618b4236293544f207fc838c911378cbe
@@ -70,8 +72,8 @@ ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pm_to_blib.t 568663f592d962dfae8c7
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/pod2man.t 11f73694a57ab199f8fe905559073744af3c14da
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/prereq.t 289100886bc698838a6f71cd8fa70348dac20b75
 ExtUtils::MakeMaker dist/ExtUtils-MakeMaker/t/vstrings.t 62c50e82f1f7afa702773b61c1cbec80c4902210
-ExtUtils::ParseXS dist/ExtUtils-ParseXS/Changes 56ba1ad116c26dc025bb6e11537e3c421338c51a
-ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm f13746745b7bdbed84ed81b5dcce84ac8b38c536
+ExtUtils::ParseXS dist/ExtUtils-ParseXS/Changes 1873bd68dc48698bbd891b882bd891400f09754b
+ExtUtils::ParseXS dist/ExtUtils-ParseXS/lib/ExtUtils/ParseXS.pm 06923e2c509a5a02c1da5b4db26496b527e21ab7
 File::Path cpan/File-Path/lib/File/Path.pm 9abce7ef6597df33fb0cbbd02bf7e34c12157330
 File::Path cpan/File-Path/t/Path_win32.t 46d09109b418a5ee9c3e2d84ee86449103f7a00d
 File::Spec dist/PathTools/t/rel2abs_vs_symlink.t abbf1a890a1b6fefebc0c8a9e2849694ade89fa9
@@ -83,7 +85,8 @@ IO::Compress::Base cpan/IO-Compress/t/compress/encode.pl 776c114af5146d3c328c247
 IO::Compress::Base cpan/IO-Compress/t/cz-14gzopen.t dee09dbad5cb1cad6027fd61d14552a192b68060
 IO::Socket::IP cpan/IO-Socket-IP/lib/IO/Socket/IP.pm d5d2ac7a181c3fd89a924297f032e7ae2e003965
 IPC::Cmd cpan/IPC-Cmd/t/01_IPC-Cmd.t 3626c405359d5e78c7bbc8245013251920527366
-JSON::PP cpan/JSON-PP/lib/JSON/PP.pm bc050082b714add65e6cb1b2b68f588337bcd26e
+JSON::PP cpan/JSON-PP/lib/JSON/PP.pm f8b702365e06c0235e7a1b10580ef726c92c20c6
+JSON::PP cpan/JSON-PP/lib/JSON/PP/Boolean.pm 2f530d28f97d0693d258ccf44694c9eaccecd422
 Math::BigInt cpan/Math-BigInt/t/bare_mbf.t b56ab2976395fa0621b9433e371c65a796936560
 Math::BigInt cpan/Math-BigInt/t/bare_mbi.t dc377711843db2b26f327a20142f1978c5e03d4b
 Math::BigInt cpan/Math-BigInt/t/bare_mif.t abfcfd3c26b3c3bb18b42a3ca211dc262889ce34
@@ -104,19 +107,24 @@ Math::BigRat cpan/Math-BigRat/t/bigfltpm.inc 8000c7057453138ff48cf4cba61f0f4a1db
 Math::BigRat cpan/Math-BigRat/t/bigfltrt.t 5508d55216c52caf26aa2e6478691c50b7856e7d
 Math::BigRat cpan/Math-BigRat/t/bigratpm.t cfd770aabeaf6b742fd942143e816db42db04fba
 Memoize cpan/Memoize/t/expmod_t.t 9386100cd9c95a0e8a4e001bba3aa52eec114d21
-Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 894e4c1810c2602f3b522831a5d24cc1b93e19e6
+<<<<<<<
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm 3281d81b4234996b29b6c88bb1b9dc300466e4db
 Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 029a563ad4a56599e8455e614170871241a7cd79
+=======
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList.pm e7a90e0c4074328c079726a312d890b0bb7ad8aa
+Module::CoreList dist/Module-CoreList/lib/Module/CoreList/Utils.pm 075d662c2e7a36d640828384126b8cd2bf75035e
+>>>>>>>
 Module::Load::Conditional cpan/Module-Load-Conditional/lib/Module/Load/Conditional.pm 9749bb2a08a404662d137901e7483799acbff5d8
 Module::Metadata cpan/Module-Metadata/t/lib/GeneratePackage.pm 502ffbe2609947430e6aa1a3df8064b3fef3e086
 NEXT cpan/NEXT/lib/NEXT.pm 2c83d03ee361816e53ccb931137d314ab878d19f
 NEXT cpan/NEXT/t/next.t 66fd60eb0f75b6f3eea95d1dee745f9a7a348146
-Net::Domain cpan/libnet/lib/Net/Cmd.pm 70a007c38833667ad47ea8059c37c1b7d1c77b6c
-Net::Domain cpan/libnet/lib/Net/Domain.pm 73f78880a95de5372bb234f37c386f52e43795d9
+Net::Domain cpan/libnet/lib/Net/Cmd.pm f4e0450459e6de99bd5fe65068876a6198bdba46
+Net::Domain cpan/libnet/lib/Net/Domain.pm 9fd56bca53cceb0957472b6531edcf5a36a61e83
 Pod::Checker cpan/Pod-Checker/scripts/podchecker.PL 8ac11522808238b028b935fa94bf5ff319e68938
 Pod::Perldoc cpan/Pod-Perldoc/lib/Pod/Perldoc.pm 582be34c077c9ff44d99914724a0cc2140bcd48c
 Pod::Usage cpan/Pod-Usage/scripts/pod2usage.PL e78dee490d466191620821446d49794a4ec6254e
 Safe dist/Safe/Safe.pm 4bc5e5c4f38134c342ec786a93d42baaecd13722
-Safe dist/Safe/t/safeops.t 47038564ccb909a2d4052cc73a049a5b4185b991
+Safe dist/Safe/t/safeops.t fd132a2e73036362f90511a1be5c36ffd07d4b11
 Search::Dict dist/Search-Dict/lib/Search/Dict.pm 1a896da1e51d5ab18227b2c28793a37cfd55308b
 Sys::Syslog cpan/Sys-Syslog/t/syslog.t bed4da2de76558f92d354bb83dc01fd7d66cadec
 Term::ReadKey cpan/Term-ReadKey/ReadKey.xs 59b64457d07717565ab7f5163743685f77bb5f4c
@@ -137,12 +145,11 @@ Time::HiRes dist/Time-HiRes/t/nanosleep.t 91ff108217547361a527f5438a36c9e09faf74
 Time::HiRes dist/Time-HiRes/t/usleep.t 573121cfdb26195ed22071e38d50dcdde3c49a66
 Time::HiRes dist/Time-HiRes/t/utime.t fc7bd0876a9d18c8a0fb104fc63c46489bd5ea7c
 Time::HiRes dist/Time-HiRes/typemap 4c0a40c7cd8dbde34c3122e8cf71b8a420bc64a4
-Win32API::File cpan/Win32API-File/File.xs 10f1120b292b7fdda2dcbf1285a1dd5b41acb8a6
+Win32API::File cpan/Win32API-File/File.xs 44b80cc1a5c598b75628e92e010c270c75cd6f4b
 YAML::LibYAML cpan/YAML-LibYAML/LibYAML/Makefile.PL af46c9ce20b08189cc0fa26b20c69ea051084365
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAML.pm 527302db61c55bf695da94adfa66e7c2f34b1f09
 YAML::LibYAML cpan/YAML-LibYAML/t/TestYAMLTests.pm 9716931aaf2305fab4a41f35560362947ba3a805
 autodie cpan/autodie/t/mkdir.t 9e70d2282a3cc7d76a78bf8144fccba20fb37dac
-<<<<<<<
 base dist/base/lib/base.pm 9328b5b1eee7c1771a92d49d3a484b3541a0ffdc
 base dist/base/lib/fields.pm ed23ed73d3e76fe02fd2309b49fa8b1744f027ef
 base dist/base/t/fields-5_6_0.t 175dea16b9325762cea401d156e8f440f916fa90
@@ -162,13 +169,5 @@ threads dist/threads/threads.xs 030620f4374ad62176e3c5d4d24b2dbd90a12b69
 threads::shared dist/threads-shared/t/waithires.t dc867159fd2fa8c09326cd7627f5a0635ca5e3b5
 version cpan/version/lib/version.pm 2a13001de38b343b29720bd432612472dfd3f265
 version cpan/version/lib/version/regex.pm 78326aeeff8b3603558da9f9b86822a04c0b7be2
-version vutil.c 51f411696cdbf3b7c3f3adb2f5b6f45fbfdd2f1f
+version vutil.c 8ef24b6b3f098ecbd152f108f3f39811ed4a23e3
 version vxs.inc 4d5b01db64de0e6f54db11baa30aac9ecc0b2788
-=======
-perlfaq cpan/perlfaq/lib/perlfaq5.pod bcc1b6af3b6dff3973643acf8d5e741463374123
-perlfaq cpan/perlfaq/lib/perlfaq8.pod bffbc0c8fa828aead24e0891a5e789369a8e0743
-podlators pod/perlpodstyle.pod c6500c9950b46e8228d4adbc09a3ee2ef23de2d0
-version cpan/version/lib/version.pm bee369df1bd84e09107a90d72ec12c38bcb97cce
-version vutil.c 7aaa76516123ced7445abe3a015c58007854be85
-version vxs.inc 8498104713e5ce189602dda55dca38bee780c297
->>>>>>>
