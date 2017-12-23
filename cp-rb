@@ -172,5 +172,7 @@ done
 #rb old/gh7-signatures3-gh25-nl  feature/gh7-signatures
 #rb old/gh7-signatures3-gh25-nl1 feature/gh7-signatures
 
+git checkout coverity
+git reset --hard master
 git checkout master
 git branch | egrep 'branch-point|master|bugfix/|feature|smoke/|win/'
