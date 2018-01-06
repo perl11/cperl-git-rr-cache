@@ -1,0 +1,179 @@
+=encoding utf8
+
+=head1 NAME
+
+perlcdelta - what is new for cperl v5.26.2
+
+=head1 DESCRIPTION
+
+This document describes the differences between the cperl 5.26.1c
+and the cperl 5.26.2c releases.
+
+If you are upgrading from an earlier release such as v5.26.0c, first
+read the L<perl5261cdelta> documentation, which describes differences
+between v5.26.0c and v5.26.1c.
+
+=head1 Security
+
+=head2 Set umask(0600) before calling mkstemp
+
+POSIX 2008 demands such an umask, but it is still problematic on
+Solaris, HP-UX and AIX and older libcs, e.g. glibc <= 2.06.
+The old umask 0177 was insecure.
+
+=head2 Disallow illegal glob with embedded NUL
+
+E.g. C<< <$fh\000> >> throws now the safe syscalls warning, and errors
+with C<Glob not terminated>, and does not pass the illegal glob path
+to the internal or external glob.
+
+See L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<Storable> 3.05_14
+
+Try to fix readonly stacksize.h with perlbrew. [cperl #335]
+
+=back
+
+=head1 Configuration and Compilation
+
+=over
+
+=item *
+
+XXX
+
+=back
+
+=head1 Utility Changes
+
+=head2 L<XXX>
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item XXX
+
+=over
+
+=item *
+
+XXX
+
+=back
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item *
+
+Fixed wrong C<panic: distributed hash flood> when dealing with
+large C<%^H> hints hashes, with >127 entries, such as C<_charnames.pm> in
+C<Regexp::Common>. Fixed the logic dealing with such a hints hash.
+L<[cperl #350]|https://github.com/perl11/cperl/issues/350>.
+
+=item *
+
+Fixed endless rpeep compiler loop with two empty nested loops,
+which e.g. broke C<Net:HTTP>.
+L<[cperl #349]|https://github.com/perl11/cperl/issues/349>.
+
+=item *
+
+Fixed return type of C<DynaLoader::dl_find_symbol_anywhere()>,
+the address, not the name.
+L<[cperl #352]|https://github.com/perl11/cperl/issues/352>.
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.26.2c represents approximately 3 months of development since
+cperl 5.26.1c and contains approximately 20,000 lines of changes
+across 170 files from 6 authors.
+
+Excluding auto-generated files, documentation and release tools, there
+were approximately 1,400 lines of changes to 76 .pm, .t, .c and .h
+files.
+
+The following people are known to have contributed the improvements
+that became cperl 5.26.2c:
+
+Reini Urban, Tony Cook, William N. Braswell, Jr, vendethiel, Aaron Crane.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Many of the changes included in this version originated in the CPAN modules
+included in Perl's core. We're grateful to the entire CPAN community for
+helping Perl to flourish.
+
+For a more complete list of all of Perl's historical contributors, please see
+the F<AUTHORS> file in the Perl source distribution.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.26.1..HEAD -c
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
