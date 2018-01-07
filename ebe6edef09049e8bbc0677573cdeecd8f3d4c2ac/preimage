@@ -1,0 +1,513 @@
+=encoding utf8
+
+=head1 NAME
+
+perlcdelta - what is new for cperl v5.26.2
+
+=head1 DESCRIPTION
+
+This document describes the differences between the cperl 5.26.1c
+and the cperl 5.26.2c releases.
+
+If you are upgrading from an earlier release such as v5.26.0c, first
+read the L<perl5261cdelta> documentation, which describes differences
+between v5.26.0c and v5.26.1c.
+
+=head1 Security
+
+=head2 Set umask(0600) before calling mkstemp
+
+POSIX 2008 demands such an umask, but it is still problematic on
+Solaris, HP-UX and AIX and older libcs, e.g. glibc <= 2.06.
+The old umask 0177 was insecure.
+
+=head2 Disallow illegal glob with embedded NUL
+
+E.g. C<< <$fh\000> >> throws now the safe syscalls warning, and errors
+with C<Glob not terminated>, and does not pass the illegal glob path
+to the internal or external glob.
+
+See L<[cperl #342]|https://github.com/perl11/cperl/issues/342>
+
+=head2 Follow chroot with chdir("/")
+
+Fixed two security issues with the chroot op:
+
+* fail on embedded NUL in the chroot argument.
+Set C<errno> to EINVAL.
+
+* If a call to chroot is not followed by a call to chdir("/") the
+chroot jail confinement can be violated.  In Perl_pp_chroot: A call to
+chroot followed by an operation that may escape from the chroot jail.
+Coverity CID #165302 Insecure chroot.
+
+=head2 [CVE-2017-12837] Heap buffer overflow in regular expression compiler
+
+Compiling certain regular expression patterns with the case-insensitive
+modifier could cause a heap buffer overflow and crash perl.  This has now been
+fixed.
+L<[perl #131582]|https://rt.perl.org/Public/Bug/Display.html?id=131582>
+
+=head2 [CVE-2017-12883] Buffer over-read in regular expression parser
+
+For certain types of syntax error in a regular expression pattern, the error
+message could either contain the contents of a random, possibly large, chunk of
+memory, or could crash perl.  This has now been fixed.
+L<[perl #131598]|https://rt.perl.org/Public/Bug/Display.html?id=131598>
+
+=head2 [CVE-2017-12814] C<$ENV{$key}> stack buffer overflow on Windows
+
+A possible stack buffer overflow in the C<%ENV> code on Windows has been fixed
+by removing the buffer completely since it was superfluous anyway.
+L<[perl #131665]|https://rt.perl.org/Public/Bug/Display.html?id=131665>
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item L<B::Debug>  1.26
+
+=item L<Compress::Raw::Zlib>  2.076_01
+
+plus our zlib-src and make -s patches
+
+=item L<Config|XSConfig> 6.23
+
+=item L<Config::Perl::V>  0.29_01
+
+=item L<Cpanel::JSON::XS>  3.0240
+
+=item L<Digest::SHA>  6.01
+
+=item L<Encode>  2.93
+
+=item L<Storable> 3.05_14
+
+Try to fix readonly stacksize.h with perlbrew. [cperl #335]
+
+=item L<VMS::DCLsym>  1.09
+
+=back
+
+=head1 Configuration and Compilation
+
+=over
+
+=item *
+
+XXX
+
+=back
+
+=head1 Utility Changes
+
+=head2 L<XXX>
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Testing
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+<<<<<<<
+=item L<arybase> 0.14
+
+Remove #ifdef USE_ITHREADS around MUTEX_* calls
+
+=item L<attributes> 1.14c
+
+Remove deprecated no-op attributes :unique, :locked.
+Added another param to validate_proto.
+
+=item L<Attribute::Handlers> 1.00
+
+Remove deprecated no-op attributes :unique, :locked
+
+=item L<base> 2.27c
+
+Limit dotless-INC effect on base.pm with guard
+
+=item L<B> 1.69_08
+
+Support PL_sv_zero
+
+=item L<B::C> 1.55_06
+
+Support POK/PVLV REGEXP for v5.27.3/v5.27.2c
+VOL => volatile for  v5.27.6/v5.27.2c
+
+=item L<B::Concise> 1.002c
+
+Support PL_sv_zero
+
+=item L<B::Deparse> 1.43_04c
+
+Support boolean optims.
+Better constant-dumping heuristics.
+
+=item L<B::Terse> 1.09_01
+
+Remove internal links to B::Debug
+
+=item L<B::Xref> 1.07_01
+
+Support sub refs
+
+=item C<Carp> 1.44c
+
+Fix problems introduced by the partial EBCDIC support from version
+1.35, and ISA constants. Not all stash elements are globs.
+
+=item C<charnames> 1.45
+
+Remove obsolete pod about NBSP
+
+=item L<Compress::Raw::Zlib> 2.076
+
+Silence gcc compiler warnings when -Wsign-compare is enabled
+#123688: Compilation warnings with clang
+
+Silence gcc compiler warnings when -Wimplicit-fallthrough is enabled
+#123358: Compilation warnings with gcc-7.*
+
+Windows uses -lzlib. Linux uses -lz
+#123699: wrong external zlib name used on Windows
+
+Update zlib-src directory to use zlib 1.2.11
+#123245: perl 5.26.1 is vulnerable to CVE-2016-9843, CVE-2016-9841, CVE-2016-9840, CVE-2016-9842
+
+Don't allow offset to be greater than length of buffer in crc32.
+
+Change my_zcalloc to use safecalloc.
+The link, https://github.com/madler/zlib/issues/253, is the upstream report for the remaining 
+valgrind errors not already dealt with by 1.2.11. Using calloc in Zlib.xs for now as a workaround.
+#121074: valgrind errors in the test suite
+
+=item L<Config::Perl::V> 0.29_01
+
+    * Add test for 5.26.1-RC1, and some cperl -V's
+    * Fix signature with argument
+    * Ignore ccache and compiler path in signature
+
+    * Add default_inc_excludes_dot
+
+=item C<constant> 1.34
+
+=item C<coretypes> 0.03c
+
+Each coretype is now a class.
+
+=item L<Cpanel::JSON::XS> 3.0239
+
+Fixed locale-insensitive numeric conversion on older perls.
+Fixed compilation under windows.
+
+=item L<Data::Dumper> 2.167_02
+
+Attempt to work around XS deparse issues on old perls.
+
+=item L<Devel::Peek> 1.27_03
+
+Dump the values of a COP $^H, %^H and lexical warnings.
+Improved the test a bit.
+
+use cv_set_call_checker_flags
+
+=item L<Devel::PPPort> 3.36_03
+
+Silence PERL_CORE make
+
+=item L<Digest::SHA> 5.98
+
+Remove deprecated -p option
+
+=item L<DirHandle> 1.05
+
+Document as obsolete
+
+=item L<Encode> 2.93
+
+lib/Encode/MIME/Name.pm t/mime-name.t
+Pulled: Add "euc-cn" => "EUC-CN" alias to Encode::MIME::Name
+https://github.com/dankogai/p5-encode/pull/124
+
+lib/Encode/CN/HZ.pm lib/Encode/JP/JIS7.pm lib/Encode/MIME/Header.pm
+t/decode.t
+Pulled: Uninitialized value fixes #122
+https://github.com/dankogai/p5-encode/pull/122
+
+Makefile.PL
+Pulled: Fix -Werror=declaration-after-statement for gcc 4.1.2
+https://github.com/dankogai/p5-encode/pull/121
+
+=item L<ExtUtils::Constant> 0.24_01
+
+Minor updates from p5p
+
+=item L<ExtUtils::CBuilder> 0.280230
+
+use vars => our
+
+=item L<feature> 1.49_01
+
+=item L<fields> 2.26c
+
+Implemented L<Mu/fields> returning fields objects, as in perl6
+(there called I<Attributes>).
+
+Revert the conversion of a fields package to class. Only close
+the ISA as with base.
+
+cperl-only.
+
+=item L<File::Fetch> 0.54
+
+Switch test URL from www.cpan.org to httpbin.org
+
+=item L<File::Glob> 1.30
+
+Skip a test when File::Glob not used.
+Avoid undefined behaviour in Copy() [perl #131746]
+
+=item L<GDBM_File> 1.16
+
+Add a pod link
+
+=item L<I18N::Langinfo> 0.14
+
+Use new fcn Perl_langinfo()
+
+=item L<if> 0.0607
+
+Doc how to import when you want to 'use MODULE ()'
+
+=item L<Module::CoreList> 20170815c
+
+=item L<Module::Load::Conditional> 0.68_01
+
+Improve CPANPLUS: Fix [cperl #331], checking for cperl builtins.
+With a slightly adjusted patch from @voegelas.
+
+=item L<mro> 1.21
+
+prevent mro.pm from loading DynaLoader
+
+=item L<Mu> 0.02c
+
+Implemented L<Mu/fields> returning fields objects.
+cperl-only.
+
+=item L<NEXT> 0.67_01
+
+Fix for GLOB stubs [cpan #123002].
+
+=item L<O> 1.02
+
+Improve error message for bogus -MO=… arguments
+
+=item L<perl5db> 1.52_01c
+
+Support debugger cmds not requiring spaces
+
+=item L<PerlIO::scalar> 0.29
+
+check invariant at compile time.
+
+return EACCES on writing to a read-only scalar
+
+=item L<Pod::Perldoc> 3.2801
+
+customize to fix formatters and pager misbehaviour
+
+=item L<POSIX> 1.78_03
+
+internal cleanup of setlocale (unusable for cpan).
+get/setpriority constants
+
+=item L<re> 0.35_01
+
+Faster. add DEBUGGING_RE_ONLY define
+
+=item L<SelfLoader> 1.24
+
+=item L<sort> 2.03
+
+no sort stable; SORTf_UNSTABLE flag
+
+=item L<Storable> 3.05_16
+
+Try to fix readonly stacksize.h with perlbrew. [cperl #335]
+
+Fix t/blessed.t for 5.10/5.12 threaded.
+
+Restore max stacksizes for non-windows systems with proper
+system(SHELLSTRING) passing signals.
+Unify stack reserve to 32 across all platforms.
+
+=item L<Symbol> 1.08_01
+
+Improved Symbol::delete_package for readonly and protected symbols
+and classes.
+
+=item L<Term::ReadLine> 1.17
+
+fix for empty &STDERR files RT #132008
+
+=item L<threads> 2.18_01
+
+Support PL_sv_zero.
+Don't Copy() null pointer
+
+=item L<Time::Piece> 1.3202
+
+    - Fix AIX compile
+    - Fix compile errors on MS
+    - Use macro for buf sizes
+    - Remove some compile warnings
+    - SP off by 1 in _crt_localtime
+
+=item L<utf8> 2.02c
+
+Improved function documentation
+
+=item L<version> 0.9918_02c
+
+Add updates from 0.9918: Add LAX_DECIMAL_VERSION, LAX_DOTTED_DECIMAL_VERSION,
+STRICT_DECIMAL_VERSION, STRICT_DOTTED_DECIMAL_VERSION regexes.
+
+Add F<t/11_taint.t>
+=======
+=item XXX
+>>>>>>>
+
+=over
+
+=item *
+
+XXX
+
+=back
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item *
+
+Fixed wrong C<panic: distributed hash flood> when dealing with
+large C<%^H> hints hashes, with >127 entries, such as C<_charnames.pm> in
+C<Regexp::Common>. Fixed the logic dealing with such a hints hash.
+L<[cperl #350]|https://github.com/perl11/cperl/issues/350>.
+
+=item *
+
+Fixed endless rpeep compiler loop with two empty nested loops,
+which e.g. broke C<Net:HTTP>.
+L<[cperl #349]|https://github.com/perl11/cperl/issues/349>.
+
+=item *
+
+Fixed return type of C<DynaLoader::dl_find_symbol_anywhere()>,
+the address, not the name.
+L<[cperl #352]|https://github.com/perl11/cperl/issues/352>.
+
+=back
+
+=head1 Platform Support
+
+=head2 Platform-Specific Notes
+
+=over 4
+
+=item Windows
+
+=over 4
+
+=item *
+
+Building XS modules with GCC 6 in a 64-bit build of Perl failed due to
+incorrect mapping of C<strtoll> and C<strtoull>.  This has now been fixed.
+L<[perl #131726]|https://rt.perl.org/Public/Bug/Display.html?id=131726>
+L<[cpan #121683]|https://rt.cpan.org/Public/Bug/Display.html?id=121683>
+L<[cpan #122353]|https://rt.cpan.org/Public/Bug/Display.html?id=122353>
+
+=back
+
+=back
+
+=head1 Acknowledgements
+
+cperl 5.26.2c represents approximately 3 months of development since
+cperl 5.26.1c and contains approximately 20,000 lines of changes
+across 170 files from 6 authors.
+
+Excluding auto-generated files, documentation and release tools, there
+were approximately 1,400 lines of changes to 76 .pm, .t, .c and .h
+files.
+
+The following people are known to have contributed the improvements
+that became cperl 5.26.2c:
+
+Reini Urban, Tony Cook, William N. Braswell, Jr, vendethiel, Aaron Crane.
+
+The list above is almost certainly incomplete as it is automatically generated
+from version control history. In particular, it does not include the names of
+the (very much appreciated) contributors who reported issues to the Perl bug
+tracker.
+
+Generated with:
+
+    cperl Porting/acknowledgements.pl cperl-5.26.1..HEAD -c
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
