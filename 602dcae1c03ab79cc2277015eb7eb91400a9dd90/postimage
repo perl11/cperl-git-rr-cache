@@ -1,0 +1,13 @@
+# ignore generated .c files, and other module build traces
+*.c
+*.bs
+blib
+pm_to_blib
+Makefile
+Makefile.PL
+ppport.h
+Storable/storable-testfile.*
+Storable/lib/Storable.pm
+Storable/lib/Storable/Limit.pm
+Time-HiRes/*.inc
+Time-HiRes/xdefine
