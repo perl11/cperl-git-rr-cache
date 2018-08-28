@@ -75,7 +75,7 @@ function rbb {
 git checkout branch-point
 rb branch-point master
 for b in `git branch --list --no-color|cut -c3- \
-        | egrep '^(bugfix|compiler|feature|win)/'`
+        | egrep '^(bugfix|compiler|feature)/'`
 do
     if [ -n $hard ]; then git reset --hard; fi
     rb $b branch-point
