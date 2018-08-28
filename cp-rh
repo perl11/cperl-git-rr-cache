@@ -4,6 +4,7 @@
 
 echo -n "Really reset hard all bugfix/|feature branches to remote origin? You will loose all your local changes (Ctrl-C) "
 read y
+set -x
 git checkout master
 git pull --rebase || exit
 
