@@ -36,6 +36,16 @@ L<perldiag/"Subroutine &%s::%s masks existing package %s::%s">
 and L<perldiag/"Subroutine &%s masks new package %s">.
 Use C<no warnings 'shadow';> to silence these new warnings.
 
+<<<<<<<
+=head2 C3 MRO is the new default
+
+The default MRO switched from the DFS (depth-first-search) to the
+recommended C3 algorithm, which was previously optional. All object
+system based on inheritence need to use C3 to avoid the diamond
+problem. And this change speeds it up, avoiding run-time loading of
+F<ext/mro>.
+
+=======
 =head2 extern sub - libffi
 
 A new L<ffi> was added to core, with a syntax resembling perl6
@@ -50,6 +60,7 @@ wchar, c-struct helpers, native arrays and native classes
 (i.e. structs), callback helpers and support for variadic (varargs)
 functions.
 
+>>>>>>>
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
@@ -210,17 +221,10 @@ Enable >2GB AvFILL check on store_hook (64bit)
 Too many references returned by STORABLE_freeze.
 It wrapped around previously. Fixes Coverity CID #187854.
 
-<<<<<<<
-=item L<Opcode> 1.40_03c
-
-Added the new setstate and keepstate ops, variants of nextstate.
-
-=======
 =item L<warnings> 1.43
 
 Add C<ffi>
 
->>>>>>>
 =back
 
 =head2 Removed Modules and Pragmata

@@ -36,6 +36,15 @@ L<perldiag/"Subroutine &%s::%s masks existing package %s::%s">
 and L<perldiag/"Subroutine &%s masks new package %s">.
 Use C<no warnings 'shadow';> to silence these new warnings.
 
+<<<<<<<
+=head2 exact_arith
+
+Zero-overhead exact integer arithmetic with automatic promotion to
+L<Math::BigInt::GMP> or L<Math::BigInt> on integer overflows. Can be
+turned on globally via C<-Duseexactarith> or lexically via
+C<use exact_arith;>.
+
+=======
 =head2 extern sub - libffi
 
 A new L<ffi> was added to core, with a syntax resembling perl6
@@ -50,6 +59,7 @@ wchar, c-struct helpers, native arrays and native classes
 (i.e. structs), callback helpers and support for variadic (varargs)
 functions.
 
+>>>>>>>
 =head1 Security
 
 XXX Any security-related notices go here.  In particular, any security
@@ -74,6 +84,12 @@ Iterating over a hash may now by default not change any key. Allow the
 previous destructive behavior of changing a hash while iterating over
 it with C<use hashiter;>
 See L<[cperl #117]|https://github.com/perl11/cperl/issues/117>, cperl-only.
+
+=head2 HINTS_LOCALE_PARTIAL
+
+The scalarC< HINTS_LOCALE_PARTIAL> hints bit is gone, you need to look at
+the C<%^H> value. For backward compatibility the value of
+C<HINTS_LOCALE_PARTIAL> is now the same as C<HINTS_LOCALE>.
 
 =head1 Deprecations
 
@@ -161,6 +177,13 @@ release manager will have to investigate the situation carefully.)
 
 =over 4
 
+=item L<exact_arith> 0.01
+
+Switch to L<Math::BigInt::GMP> or L<Math::BigInt> on arithmetic
+integer overflows. Do not loose precision with any builtin integer
+arithmetic operator.
+L<[cperl #21]|https://github.com/perl11/cperl/issues/21>
+
 =item L<hashiter>
 
 Allow hash iterators changing keys for back-compat.
@@ -210,17 +233,10 @@ Enable >2GB AvFILL check on store_hook (64bit)
 Too many references returned by STORABLE_freeze.
 It wrapped around previously. Fixes Coverity CID #187854.
 
-<<<<<<<
-=item L<Opcode> 1.40_03c
-
-Added the new setstate and keepstate ops, variants of nextstate.
-
-=======
 =item L<warnings> 1.43
 
 Add C<ffi>
 
->>>>>>>
 =back
 
 =head2 Removed Modules and Pragmata
