@@ -1,0 +1,352 @@
+=encoding utf8
+
+=head1 NAME
+
+perlcdelta - what is new for cperl v5.28.1
+
+=head1 DESCRIPTION
+
+This document describes the differences between the cperl 5.28.0
+and the cperl 5.28.1 releases.
+
+If you are upgrading from an earlier release such as v5.26.0c, first
+read the L<perl526*cdelta> documentation, which describes differences
+between v5.26.0c and v5.26.3c
+
+=head1 Notice
+
+XXX Any important notices here
+
+=head1 Core Enhancements
+
+=head2 Check bless name under use strict names
+
+The second argument to bless, the new classname, is now checked to be a
+valid package name identifier when B<strict names> is in effect, and the
+name is now normalized.
+L<[cperl #376]|https://github.com/perl11/cperl/issues/376>
+
+This is a bugfix, but a major compatibility change.
+
+=head1 Security
+
+XXX Any security-related notices go here.  In particular, any security
+vulnerabilities closed should be noted here rather than in the
+L</Selected Bug Fixes> section.
+
+[ List each security issue as a =head2 entry ]
+
+=head1 Performance Enhancements
+
+=over 4
+
+=item Improve newSVpvn_share
+
+Don't downgrade twice, the is_utf8 flags can be taken from the
+returned hek, which does the downgrading to bytes already.
+
+=back
+
+=head1 Modules and Pragmata
+
+=head2 Updated Modules and Pragmata
+
+=over 4
+
+=item C<Cwd> 4.75c
+
+Fixed long pathnames test for getcwd() on older systems, like debian-7.11 i386,
+which still returns ENAMETOOLONG on large enough buffers.
+Fix the HAS_GET_CURRENT_DIR_NAME check, and the is_ENAMETOOLONG macro.
+Note that C<get_current_dir_name()> is now in effect, which returns
+the current PWD, and not the C<realpath()> (i.e the abs_path) of
+it. This e.g. broke some DBD::File tests, when behind symlinks.
+
+=item L<Errno> 1.29_01
+
+Protect from including some avx512 intrinsics directly on mingw.
+
+<<<<<<<
+=item L<Storable> 3.11_02
+=======
+=item L<ffi> 0.01c
+
+ffi helpers and ffi types.
+
+=item L<Opcode> 1.40_03c
+
+Restrict the new op 'enterffi'.
+
+=item L<Storable> 3.12_02
+>>>>>>>
+
+Enable >2GB AvFILL check on store_hook (64bit)
+Too many references returned by STORABLE_freeze.
+It wrapped around previously. Fixes Coverity CID #187854.
+Move __Storable__.pm into Storable_pm.PL [cperl #374]
+
+=back
+
+=head1 Documentation
+
+XXX Changes to files in F<pod/> go here.  Consider grouping entries by
+file and be sure to link to the appropriate page, e.g. L<perlfunc>.
+
+=head2 Changes to Existing Documentation
+
+XXX Changes which significantly change existing files in F<pod/> go here.
+However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
+section.
+
+=head3 L<XXX>
+
+=over 4
+
+=item *
+
+XXX Description of the change here
+
+=back
+
+=head1 Diagnostics
+
+The following additions or changes have been made to diagnostic output,
+including warnings and fatal error messages.  For the complete list of
+diagnostic messages, see L<perldiag>.
+
+=head2 Changes to Existing Diagnostics
+
+XXX Changes (i.e. rewording) of diagnostic messages go here
+
+=over 4
+
+=item *
+
+XXX Describe change here
+
+=back
+
+=head1 Utility Changes
+
+XXX Changes to installed programs such as F<cperlbug> and F<xsubpp> go here.
+Most of these are built within the directory F<utils>.
+
+[ List utility changes as a =head2 entry for each utility and =item
+entries for each change
+Use L<XXX> with program names to get proper documentation linking. ]
+
+=head2 L<XXX>
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Configuration and Compilation
+
+XXX Changes to F<Configure>, F<installperl>, F<installman>, and analogous tools
+go here.  Any other changes to the Perl build process should be listed here.
+However, any platform-specific changes should be listed in the
+L</Platform Support> section, instead.
+
+[ List changes as a =item entry ].
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Testing
+
+XXX Any significant changes to the testing of a freshly built perl should be
+listed here.  Changes which create B<new> files in F<t/> go here as do any
+large changes to the testing harness (e.g. when parallel testing was added).
+Changes to existing files in F<t/> aren't worth summarizing, although the bugs
+that they represent may be covered elsewhere.
+
+[ List each test improvement as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Platform Support
+
+XXX Any changes to platform support should be listed in the sections below.
+
+[ Within the sections, list each platform as a =item entry with specific
+changes as paragraphs below it. ]
+
+=head2 Platform-Specific Notes
+
+XXX List any changes for specific platforms.  This could include configuration
+and compilation changes or changes in portability/compatibility.  However,
+changes within modules for platforms should generally be listed in the
+L</Modules and Pragmata> section.
+
+=over 4
+
+=item mingw
+
+=over
+
+=item Fixed Errno from processing some protected intrinsics directly
+
+which fail with #error "Never use <avx512vpopcntdqintrin.h>, <avx512ifmaintrin.h>
+directly; include <immintrin.h> instead.",
+#error "Never use <fmaintrin.h> directly; include <immintrin.h> instead.",
+#error "Never use <xsavesintrin.h> directly; include <x86intrin.h> instead."
+
+=item Undefine i_dlfcn
+
+on mingw and new architectures. See L<https://sourceforge.net/p/mingw-w64/bugs/25/>
+
+=back
+
+=item MSVC 11.0
+
+Enable HAS_BOOL, fixes F<xkeycheck.h> redefinition errors.
+
+=back
+
+=head1 Internal Changes
+
+XXX Changes which affect the interface available to C<XS> code go here.  Other
+significant internal changes for future core maintainers should be noted as
+well.
+
+[ List each change as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Selected Bug Fixes
+
+=over 4
+
+=item *
+
+Fix C<valid_ident()> for 128-255 chars not to use isIDFIRST_A nor
+isIDCONT_A, _A does not match them.  Fixes F<t/uni/method.t> for chars
+like oslash.
+
+=item *
+
+Fix C<newSVpvn_share> to store the HEK_WASUTF8 flag if downgraded.
+Improve C<newSVpvn_share> to downgrade only once, not twice.
+
+A shared string and a GV with chars in the range 128-255 are downgraded to
+bytes without the UTF8 flag. Store at least the HEK_WASUTF8 flag then.
+
+=item *
+
+Check bless name under use strict names.
+
+The second argument to bless, the new classname, is now checked to be a
+valid package name identifier when B<strict names> is in effect, and the
+name is now normalized.
+L<[cperl #376]|https://github.com/perl11/cperl/issues/376>
+
+=item *
+
+Fix cperl 5.28.0c regression disallowing calling subnames with a quote
+in a package qualifier position.
+L<[cperl #371]|https://github.com/perl11/cperl/issues/371>
+
+This is now valid again:
+
+  sub don't { 0 } print don't;
+
+With v5.28.0c only the declaration C<sub don't { 0 }> was valid, it
+accepted the subroutine C<don't>, but the call C<print don't;> was
+invalid, it was looking for a second single-quote string delimiter.
+Note that in cperl since 5.28c C<'> is no perl4-style package seperator
+anymore.
+
+=back
+
+=head1 Known Problems
+
+XXX Descriptions of platform agnostic bugs we know we can't fix go here.  Any
+tests that had to be C<TODO>ed for the release would be noted here.  Unfixed
+platform specific bugs also go here.
+
+[ List each fix as a =item entry ]
+
+=over 4
+
+=item *
+
+XXX
+
+=back
+
+=head1 Errata From Previous Releases
+
+=over 4
+
+=item *
+
+XXX Add anything here that we forgot to add, or were mistaken about, in
+the perldelta of a previous release.
+
+=back
+
+=head1 Obituary
+
+XXX If any significant core contributor has died, we've added a short obituary
+here.
+
+=head1 Acknowledgements
+
+XXX Generate this with:
+
+    cperl Porting/acknowledgements.pl cperl-5.28.0..HEAD -c
+
+=head1 Reporting Bugs
+
+If you find what you think is a bug, you might check the articles recently
+posted to the comp.lang.perl.misc newsgroup and the perl bug database at
+L<https://rt.perl.org/> .  There may also be information at
+L<http://www.perl.org/> , the Perl Home Page.
+
+If you believe you have an unreported bug, please run the L<cperlbug> program
+included with your release.  Be sure to trim your bug down to a tiny but
+sufficient test case.  Your bug report, along with the output of C<perl -V>,
+will be sent off to perlbug@perl.org to be analysed by the Perl porting team.
+
+If you think it's a cperl specific bug or trust the cperl developers more 
+please file an issue at L<https://github.com/perl11/cperl/issues>.
+
+If the bug you are reporting has security implications which make it
+inappropriate to send to a publicly archived mailing list, then see
+L<perlsec/SECURITY VULNERABILITY CONTACT INFORMATION>
+For details of how to report the issue.
+
+=head1 SEE ALSO
+
+The F<Changes> file for an explanation of how to view exhaustive details on
+what changed.
+
+The F<INSTALL> file for how to build Perl.
+
+The F<README> file for general stuff.
+
+The F<Artistic> and F<Copying> files for copyright information.
+
+=cut
