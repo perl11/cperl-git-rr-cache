@@ -32,8 +32,9 @@ eliminating all access to the package via methods.  This is almost
 always an error, unless you want to override access to the package
 or want a data-only package, without any methods.
 cperl added the shadow warnings
-L<perldiag/"Subroutine &%s::%s masks existing package %s::%s">
-and L<perldiag/"Subroutine &%s masks new package %s">.
+L<perldiag/"Subroutine &%s::%s masks existing package %s">,
+L<perldiag/"Subroutine &%s masks new package %s"> and
+L<perldiag/"Subroutine &%s masks new class %s">.
 Use C<no warnings 'shadow';> to silence these new warnings.
 
 =head2 extern sub - libffi
@@ -171,6 +172,13 @@ multi-threaded.  To always enable them, add
   -Accflags='-DUSE_THREAD_SAFE_LOCALE'
 
 to your F<Configure> flags.
+
+=head2 Check RUNNING_ON_VALGRIND, set destruct_level to 2
+
+Detect if we are running under valgrind and set destruct_level to 2.
+If so, destruct all ops, leading to no valgrind leaks, even with
+--leak-check=full.
+cperl-only L<[cperl #400]|https://github.com/perl11/cperl/issues/400>
 
 =head1 Security
 
@@ -514,6 +522,10 @@ ffi helpers and ffi types.
 Allow hash iterators changing keys for back-compat.
 See L</Protected hash iterators>.
 
+=item L<YAML::Safe> 0.80
+
+Replaces L<YAML::XS>.
+
 =back
 
 =head2 Updated Modules and Pragmata
@@ -551,6 +563,13 @@ Better way to catch warnings (CPAN RT #126900).
 
 Typo in pod
 
+=item L<Compress::Raw::Bzip2>  2.086
+
+Added transparent lzip and zstd delegation in tests.
+More meta.
+
+=item L<Compress::Raw::Zlib>  2.086
+
 =item L<Config> 6.23
 
 Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
@@ -559,17 +578,28 @@ Add the FREEBSD_KERNEL_VERSION key for FreeBSD.
 
 Whitespace only
 
-=item L<CPAN> 2.21_01
+=item L<Config::Perl::V>  0.31_01
 
-Update to 2.21 upstream with our cperl fixes. Some of our fixes were accepted upstream.
+Added USE_THREAD_SAFE_LOCALE
+
+=item L<CPAN> 2.27_02
+
+Update to 2.27-TRIAL upstream with our cperl fixes. Some of our fixes
+were accepted upstream.
 
 Fixed critical rmtree bug with a symlink crossing mountpoints
 previous directory ~/.cpan/build changed before entering tmp-32186,
 expected dev=47 ino=244719549, actual dev=47 ino=33303, aborting at
 CPAN/Distribution.pm line 591
 
-Add many upstream tests and distroprefs. Still need to install them, and
-add the cperl distroprefs.
+Add many upstream tests and distroprefs. Still need to install them.
+Added the cperl distroprefs.
+
+Support L<YAML::Safe> for distroprefs.
+
+=item L<CPAN::Meta> 2.150011c
+
+Add L<YAML::Safe> support.
 
 =item L<Cpanel::JSON::XS> 4.12
 
@@ -639,6 +669,14 @@ Quote glob names better; notably, Unicode globs are
 now handled correctly.
 L<[perl #119831]|https://rt.perl.org/Public/Bug/Display.html?id=119831>
 
+=item L<DB_File>  1.852
+
+ParseOpenInfo() leaks if it croaks
+L<https://github.com/pmqs/DB_File/issues/1>
+
+Added hints files, sourced from
+L<http://cvsweb.netbsd.org/bsdweb.cgi/pkgsrc/lang/perl5/files/>
+
 =item L<deprecate> 0.04_01
 
 expanded the documentation
@@ -685,9 +723,13 @@ skip 3 failing 5.6.0 tests in ppphtest
 
 CVE-2019-11358 + CVE-2015-9251 jquery-1.12.4.js update to
 latest v3.4.1.
+Also update the two plugins to latest, and adjusted the
+tablesorter css.
 
-Also update the two plugins to latest,
-and adjusted the tablesorter css.
+Adjust the short %PL_DBsub keys (without main::) compatible to
+perl5.
+
+Add all the tests, cleanup after the tests.
 
 =item L<DynaLoader> 2.09c
 
@@ -768,6 +810,8 @@ Fix method of generating names for dummy users and groups during testing
 (i.e. under docker)
 L<[cpan #121967]|https://rt.cpan.org/Ticket/Display.html?id=121967>.
 
+=item L<File::Temp>  0.2309
+
 =item L<GDBM_File> 1.18
 
 Add SECURITY AND PORTABILITY warning paragraph to pod.
@@ -775,6 +819,8 @@ Add SECURITY AND PORTABILITY warning paragraph to pod.
 =item L<IO> 1.40_02
 
 Skip EINVAL on FreeBSD tests when binding a tcp listener on localhost.
+
+=item L<IO::Compress::Base>  2.086
 
 =item L<IO::Socket::IP> 0.39_03
 
@@ -788,7 +834,7 @@ L<[cpan #105700]|https://rt.cpan.org/Ticket/Display.html?id=1105700>
 
 probe for more external gzips, make t/external.t strict safe.
 
-=item L<JSON::PP>  4.02_01
+=item L<JSON::PP>  4.03_01
 
 Upstream + Keep some of our cperl-specific docs
 
@@ -796,18 +842,41 @@ Upstream + Keep some of our cperl-specific docs
 
 Hint about $dir/$version is checked by lib.pm and deleted from @INC
 
-=item L<Math::BigInt> 1.999814
+=item L<Math::BigInt> 1.999816
 
-Add C<to_base()> and C<from_base()> to L<Math::BigInt> and corresponding library
-methods C<_to_base()> and C<_from_base()> to L<Math::BigInt::Lib>. This was inspired
-by L<CPAN RT #122681|https://rt.cpan.org/Ticket/Display.html?id=122681>.
+Add C<to_base()> and C<from_base()> to L<Math::BigInt> and
+corresponding library methods C<_to_base()> and C<_from_base()> to
+L<Math::BigInt::Lib>. This was inspired by L<CPAN RT
+#122681|https://rt.cpan.org/Ticket/Display.html?id=122681>.
 
-In the documentation for each of the C<to_(bin|hex|oct|bytes)> methods, add a
-reference to the corresponding C<from_(bin|hex|oct|bytes)> method.
+In the documentation for each of the C<to_(bin|hex|oct|bytes)>
+methods, add a reference to the corresponding
+C<from_(bin|hex|oct|bytes)> method.
+
+C<bnok()> for L<Math::BigInt> and L<Math::BigFloat> now support the
+full Kronenburg extension. The behaviour is identical to the behaviour
+of the Maple and Mathematica function for negative integers n, k. Add
+tests.  L<RT #95628|https://rt.cpan.org/Ticket/Display.html?id=95628>.
+
+Fix POD errors.
+L<RT #125141|https://rt.cpan.org/Ticket/Display.html?id=125141>.
+
+Move bitwise operators signed and, signed or, and signed xor from
+F<lib/Math/BigInt/CalcEmu.pm> into F<lib/Math/BigInt/Lib.pm>. The file
+F<lib/Math/BigInt/CalcEmu.pm> is no longer needed and thus removed.
 
 =item L<Math::BigInt::FastCalc> 0.5008
 
 No code nor test changes.
+
+=item L<Module::Load>  0.34
+
+Added SEE ALSO section to documentation. RT#100575
+Unreachable code cleanup
+
+=item L<mro> 1.22_02
+
+Fix -Wmaybe-uninitialized warnings
 
 =item L<NDBM_File> 1.15
 
@@ -847,7 +916,14 @@ Add SECURITY AND PORTABILITY warning paragraph to pod.
 
 Restrict the new op 'enterffi'.
 
-=item L<perlfaq> 5.20180915
+=item L<Parse::CPAN::Meta> 1.5002c
+
+Replace L<YAML::XS> by L<YAML::Safe>.
+
+=item L<perlfaq> 5.20190126
+
+Fixed many typos and pod markup.
+Added reference in perlfaq to new ~ syntax in indented here-docs.
 
 =item L<PerlIO::encoding> 0.27_01
 
@@ -864,6 +940,16 @@ L<[perl #133422]|https://rt.perl.org/Public/Bug/Display.html?id=133422>
 =item F<perldb.pl> 1.54_03c
 
 Typos in pod.
+
+=item C<podlators>  4.12
+
+Skip the F<man/no-encode.t> test if Encode is already loaded while
+running the test suite, which seems to happen sometimes with CPAN
+Testers tests.
+
+=item L<Pod::Simple>  4.38c
+
+Merge with updates from 3.38
 
 =item L<POSIX> 1.87_03
 
@@ -889,9 +975,12 @@ Fix a test for CORE::dump
 Adapt for layers on STDERR, which failed if PERL_UNICODE was set and the
 current locale was a UTF-8 locale.
 
-=item L<Socket> 2.027_05
+=item L<Socket> 2.029_05
 
 re-order and comment deprecated IDN constants.
+Old MinGW lacks ADDRESS_FAMILY; use USHORT instead (RT128550).
+Add PF_LOCAL/AF_LOCAL constants (RT127089).
+Provide sockaddr_un on WIN32 (RT128550).
 
 =item L<Storable> 3.15_04
 
@@ -914,6 +1003,10 @@ It wrapped around previously. Fixes Coverity CID #187854.
 Move __Storable__.pm into Storable_pm.PL
 L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 
+=item L<Term::ReadKey> 2.38_03
+
+merge with 2.38
+
 =item L<threads::shared>  1.60
 
 add extra lock tracing via -DSHARED_TRACE_LOCKS
@@ -929,6 +1022,16 @@ can't be be in sub init() because that sub isn't called on windows
 t/itimer.t: avoid race condition. don't truncate nanosec utime
 
 fallback/const-c.inc: Avoid compiler warning showing up on darwin.
+
+=item L<Unicode::Collate>  1.27
+
+UCET is updated (for Unicode 10.0.0) as F<Collate/allkeys.txt>.
+The default UCA_Version is 36.
+F<Locale/*.pl> and F<CJK/Korean.pm> are updated.
+
+U::C::Locale newly supports locale: cu.  tailoring Cyrillic YI as
+BYELORUSSIAN-UKRAINIAN I with DIAERESIS, affected locale: kk added
+F<loc_cu.t> in t.
 
 =item L<Unicode::UCD> 0.71_03
 
@@ -977,6 +1080,11 @@ See L<perldeprecation/Assigning non-zero to C<< $[ >> is fatal>
 
 L<B::Debug> is no longer distributed with the core distribution.
 This was announced with v5.28.0. It remains available on CPAN.
+
+=item *
+
+L<YAML::XS> is no longer distributed with the cperl core distribution.
+It was replaced with L<YAML::Safe>.
 
 =back
 
@@ -1104,7 +1212,7 @@ L<Attempt to change hash while iterating over it|perldiag/"Attempt to change has
 
 =item *
 
-L<Subroutine &%s::%s masks existing package %s::%s|perldiag/"Subroutine &%s::%s masks existing package %s::%s">
+L<Subroutine &%s::%s masks existing package %s|perldiag/"Subroutine &%s::%s masks existing package %s">
 
 =item *
 
@@ -1168,6 +1276,12 @@ Added note that cperl allows more. In cperl only the combinations with C<\NpPbBx
 are illegal.
 
 =back
+
+=head1 Utility Changes
+
+=head2 F<Porting/sync-with-cpan>
+
+Stabilized CoreList updater.
 
 =head1 Configuration and Compilation
 
@@ -1276,6 +1390,11 @@ Fixed the error cases when the double or long double probes returned undef.
 =item F<Porting/do-make-cperl-release>
 
 Replace C<sha1sum> with C<sha256sum>, add C<gpg -a -b $pkg>.
+
+=item i_valgrind
+
+Detect F<valgrind/valgrind.h> and check C<RUNNING_ON_VALGRIND> for setting
+C<destruct_level> to 2.
 
 =back
 
@@ -1787,6 +1906,17 @@ accepted the subroutine C<don't>, but the call C<print don't;> was
 invalid, it was looking for a second single-quote string delimiter.
 Note that in cperl C<'> is no perl4-style package seperator.
 
+=item *
+
+Fixed a L<Safe> double-free of a XS import method in a leaf package.
+This really is a problem in Safe (see the outcommented code there),
+but the fix was easiest to do in gp_free.
+
+gp_free in global destruction with Safe may double-free a temporary
+CV, like C<&Safe::Root0::strict::import@>, i.e. with
+F<dist/Storable/t/code.t> The fix is similar to the AV double-free
+protection of @_ in gp_free.
+
 =back
 
 =head1 Known Problems
@@ -1795,13 +1925,16 @@ Note that in cperl C<'> is no perl4-style package seperator.
 
 =item *
 
-Latest msys2 gcc compiler fails on two tests: F<op/sort.t> and
-F<op/signatures.t>.
+The latest msys2 64bit gcc-9 compiler fails on two tests: F<op/sort.t> and
+F<op/signatures.t>, similar to the darwin gcc-9 where the optimizer
+generates wrong code in XSConfig.
+L<[cperl #397]|https://github.com/perl11/cperl/issues/397>
 
 =item *
 
-Detect shared-only import libraries like F<libNAME.dll.a>, which have no static
-counterpart F<libNAME.a>, which happens e.g. for C<libffi> on B<cygwin> or msys.
+Detect shared-only import libraries like F<libNAME.dll.a>, which have
+no static counterpart F<libNAME.a>, which happens e.g. for C<libffi>
+on B<cygwin> or msys.
 
 =back
 

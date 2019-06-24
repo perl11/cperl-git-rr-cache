@@ -180,6 +180,12 @@ If so, destruct all ops, leading to no valgrind leaks, even with
 --leak-check=full.
 cperl-only L<[cperl #400]|https://github.com/perl11/cperl/issues/400>
 
+=head2 Added experimental Internals::gc()
+
+With the ability to free empty SV arenas. It's currently unstable, and
+might be replaced by proper arena memory handling later.  See
+L<Internals/gc> and L<perlapi/sv_gc_arenas>.
+
 =head1 Security
 
 =head2 Variable length lookbehind in regular expression pattern matching
@@ -302,17 +308,7 @@ throws an exception which advises use of C<File::Glob::bsd_glob()> instead.
 
 L<[perl #133586]|https://rt.perl.org/Public/Bug/Display.html?id=133586>
 
-<<<<<<<
 =head2 C<pack()> no longer can return malformed UTF-8
-=======
-=head2 HINTS_LOCALE_PARTIAL
-
-The scalarC< HINTS_LOCALE_PARTIAL> hints bit is gone, you need to look at
-the C<%^H> value. For backward compatibility the value of
-C<HINTS_LOCALE_PARTIAL> is now the same as C<HINTS_LOCALE>.
-
-=head1 Deprecations
->>>>>>>
 
 It croaks if it would otherwise return a UTF-8 string that contains
 malformed UTF-8.  This protects agains potential security threats.  This
@@ -1005,10 +1001,17 @@ It wrapped around previously. Fixes Coverity CID #187854.
 Move __Storable__.pm into Storable_pm.PL
 L<[cperl #374]|https://github.com/perl11/cperl/issues/374>
 
+<<<<<<<
+=item L<Symbol> 1.08_02
+
+Calls DynaLoader::dl_unload_file on XS modules for gc() support.
+
+=======
 =item L<Term::ReadKey> 2.38_03
 
 merge with 2.38
 
+>>>>>>>
 =item L<threads::shared>  1.60
 
 add extra lock tracing via -DSHARED_TRACE_LOCKS
